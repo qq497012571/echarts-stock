@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2bce2997c8fd899e94daa8b108c53fb1",
+    "content-hash": "0d118e564e2361658918203d338dd80d",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -2092,6 +2092,68 @@
             "time": "2023-02-21T06:42:40+00:00"
         },
         {
+            "name": "hyperf/socketio-server",
+            "version": "v3.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hyperf/socketio-server.git",
+                "reference": "0e1ad49c4ec826b27b369d485f5632d58fd3d13e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hyperf/socketio-server/zipball/0e1ad49c4ec826b27b369d485f5632d58fd3d13e",
+                "reference": "0e1ad49c4ec826b27b369d485f5632d58fd3d13e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-redis": "*",
+                "ext-swoole": ">=4.4",
+                "hyperf/di": "~3.0.0",
+                "hyperf/redis": "~3.0.0",
+                "hyperf/websocket-server": "~3.0.0",
+                "php": ">=8.0",
+                "psr/container": "^1.0|^2.0"
+            },
+            "conflict": {
+                "mix/redis-subscriber": "<3.0.4"
+            },
+            "suggest": {
+                "hyperf/command": "Required to use RemoveRedisGarbage command",
+                "hyperf/nsq": "Required to use RedisNsqAdapter",
+                "hyperf/session": "Required to use session",
+                "mix/redis-subscriber": "Suggest to use RedisAdapter (^3.0.4)"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                },
+                "hyperf": {
+                    "config": "Hyperf\\SocketIOServer\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hyperf\\SocketIOServer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Socket.io implementation for hyperf",
+            "keywords": [
+                "hyperf",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/hyperf/socketio-server/issues",
+                "source": "https://github.com/hyperf/socketio-server/tree/v3.0.6"
+            },
+            "time": "2023-02-11T05:19:35+00:00"
+        },
+        {
             "name": "hyperf/utils",
             "version": "v3.0.9",
             "source": {
@@ -2160,6 +2222,185 @@
                 "source": "https://github.com/hyperf/hyperf"
             },
             "time": "2023-03-05T03:39:42+00:00"
+        },
+        {
+            "name": "hyperf/view",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hyperf/view.git",
+                "reference": "4ab4c2206ce2a9de20e8513e8fae0e5e4b87be28"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hyperf/view/zipball/4ab4c2206ce2a9de20e8513e8fae0e5e4b87be28",
+                "reference": "4ab4c2206ce2a9de20e8513e8fae0e5e4b87be28",
+                "shasum": ""
+            },
+            "require": {
+                "hyperf/contract": "~3.0.0",
+                "hyperf/utils": "~3.0.0",
+                "php": ">=8.0",
+                "psr/container": "^1.0|^2.0"
+            },
+            "suggest": {
+                "duncan3dc/blade": "Required to use blade as a view render engine.",
+                "hyperf/task": "Required to use task as a view render mode.",
+                "league/plates": "Required to use plates as a view render engine.",
+                "smarty/smarty": "Required to use smarty as a view render engine.",
+                "twig/twig": "Required to use twig as a view render engine."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                },
+                "hyperf": {
+                    "config": "Hyperf\\View\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hyperf\\View\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A view library for Hyperf.",
+            "homepage": "https://hyperf.io",
+            "keywords": [
+                "hyperf",
+                "php",
+                "swoole",
+                "view"
+            ],
+            "support": {
+                "docs": "https://hyperf.wiki",
+                "issues": "https://github.com/hyperf/hyperf/issues",
+                "pull-request": "https://github.com/hyperf/hyperf/pulls",
+                "source": "https://github.com/hyperf/hyperf"
+            },
+            "time": "2022-11-01T02:50:54+00:00"
+        },
+        {
+            "name": "hyperf/view-engine",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hyperf/view-engine.git",
+                "reference": "081fe33271b67a767a21c332541c0e32a2c942a9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hyperf/view-engine/zipball/081fe33271b67a767a21c332541c0e32a2c942a9",
+                "reference": "081fe33271b67a767a21c332541c0e32a2c942a9",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "hyperf/config": "~3.0.0",
+                "hyperf/di": "~3.0.0",
+                "hyperf/event": "~3.0.0",
+                "hyperf/macroable": "~3.0.0",
+                "hyperf/utils": "~3.0.0",
+                "hyperf/view": "~3.0.0",
+                "php": ">=7.2"
+            },
+            "suggest": {
+                "hyperf/session": "Required to use ShareErrorsFromSession.",
+                "hyperf/validation": "Required to use ShareErrorsFromSession and ValidationExceptionHandle."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                },
+                "hyperf": {
+                    "config": "Hyperf\\ViewEngine\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Functions.php"
+                ],
+                "psr-4": {
+                    "Hyperf\\ViewEngine\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "keywords": [
+                "engine",
+                "hyperf",
+                "php",
+                "view"
+            ],
+            "support": {
+                "issues": "https://github.com/hyperf/view-engine/issues",
+                "source": "https://github.com/hyperf/view-engine/tree/v3.0.0"
+            },
+            "time": "2022-11-01T02:50:54+00:00"
+        },
+        {
+            "name": "hyperf/websocket-server",
+            "version": "v3.0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hyperf/websocket-server.git",
+                "reference": "1b77bdf477f64d2bd6bd41eaf319489301a33e52"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hyperf/websocket-server/zipball/1b77bdf477f64d2bd6bd41eaf319489301a33e52",
+                "reference": "1b77bdf477f64d2bd6bd41eaf319489301a33e52",
+                "shasum": ""
+            },
+            "require": {
+                "hyperf/contract": "~3.0.0",
+                "hyperf/exception-handler": "~3.0.0",
+                "hyperf/http-server": "~3.0.0",
+                "hyperf/utils": "~3.0.0",
+                "php": ">=8.0",
+                "psr/container": "^1.0|^2.0",
+                "psr/event-dispatcher": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                },
+                "hyperf": {
+                    "config": "Hyperf\\WebSocketServer\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hyperf\\WebSocketServer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A websocket server library for Hyperf.",
+            "homepage": "https://hyperf.io",
+            "keywords": [
+                "hyperf",
+                "php",
+                "swoole",
+                "websocket"
+            ],
+            "support": {
+                "docs": "https://hyperf.wiki",
+                "issues": "https://github.com/hyperf/hyperf/issues",
+                "pull-request": "https://github.com/hyperf/hyperf/pulls",
+                "source": "https://github.com/hyperf/hyperf"
+            },
+            "time": "2023-02-15T01:42:47+00:00"
         },
         {
             "name": "laminas/laminas-mime",
