@@ -7,4 +7,4 @@
 
 FROM mysql:latest
 
-EXPOSE 6900
+# EXPOSE 3609

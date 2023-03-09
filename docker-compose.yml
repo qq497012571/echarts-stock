@@ -1,25 +1,29 @@
 version: '2'
 services:
-    hyperf:
+    hyperf-php:
+        tty: true
         build: ./docker/hyperf
-        container_name: hyperf
-        restart: always
+        container_name: hyperf-php
         volumes:
             - .:/opt/www
-        expose:
-             - "9501"
-             - "9502"
+        ports:
+            - "9501:9501"
+            - "9502:9502"
+            
         privileged: true
 
-    hyperf-reids:
+    hyperf-redis:
         build: ./docker/redis
         container_name: hyperf-redis
         restart: always
         ports:
           - "6900:6379"
+        privileged: true
+
 
     hyperf-mysql:
         build: ./docker/mysql
+        container_name: hyperf-mysql
         command: --default-authentication-plugin=mysql_native_password
         restart: always
         environment:
@@ -31,5 +35,6 @@ services:
         - "3309:3306"
         volumes:
         - ./docker/mysql/data:/var/lib/mysql
+        privileged: true
 
 #使用方法: docker-compose -f docker-compose.yml up -d

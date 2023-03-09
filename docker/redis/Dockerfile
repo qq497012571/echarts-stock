@@ -7,4 +7,4 @@
 
 FROM redis:latest
 
-EXPOSE 6900
+# EXPOSE 6900

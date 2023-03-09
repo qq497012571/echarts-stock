@@ -52,4 +52,6 @@ COPY . /opt/www
 EXPOSE 9501
 EXPOSE 9502
 
-ENTRYPOINT ["php", "/opt/www/bin/hyperf.php", "start"]
+
+
+# ENTRYPOINT ["php", "/opt/www/bin/hyperf.php", "start"]
