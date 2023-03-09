@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types=1);
+
+use App\Middleware\AuthMiddleware;
+
 /**
  * This file is part of Hyperf.
  *
@@ -11,5 +14,9 @@ declare(strict_types=1);
  */
 return [
     'http' => [
+    ],
+
+    'socket-io' => [
+        AuthMiddleware::class,
     ],
 ];

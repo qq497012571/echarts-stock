@@ -7,7 +7,7 @@
 runtime/
 vendor/
 .phpintel/
-.env
 .DS_Store
 .phpunit*
 *.cache
+docker/mysql/data
