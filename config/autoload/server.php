@@ -41,7 +41,8 @@ return [
     ],
     'settings' => [
         Constant::OPTION_ENABLE_COROUTINE => true,
-        Constant::OPTION_WORKER_NUM => swoole_cpu_num(),
+        Constant::OPTION_WORKER_NUM => 1,
+        // Constant::OPTION_WORKER_NUM => swoole_cpu_num(),
         Constant::OPTION_TASK_ENABLE_COROUTINE => false,
         Constant::OPTION_PID_FILE => BASE_PATH . '/runtime/hyperf.pid',
         Constant::OPTION_OPEN_TCP_NODELAY => true,

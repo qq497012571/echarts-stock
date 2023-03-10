@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Middleware\AuthMiddleware;
+use App\Middleware\WebsocketAuthMiddleware;
 
 /**
  * This file is part of Hyperf.
@@ -17,6 +17,6 @@ return [
     ],
 
     'socket-io' => [
-        AuthMiddleware::class,
+        WebsocketAuthMiddleware::class,
     ],
 ];

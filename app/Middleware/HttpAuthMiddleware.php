@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
+use App\Constant\RedisKey;
+use App\Model\User;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
+use Hyperf\Redis\RedisFactory;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class AuthMiddleware implements MiddlewareInterface
+class HttpAuthMiddleware implements MiddlewareInterface
 {
     /**
      * @var ContainerInterface
@@ -38,25 +41,20 @@ class AuthMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        // 根据具体业务判断逻辑走向，这里假设用户携带的token有效
-        $isValidToken = false;
-
-        $token = $this->request->query('token');
-        if ($token == 'xxxxx') {
-            $isValidToken = true;
+        $token = $this->request->header('x-auth-token');
+        if (!$this->isAuth($token)) {
+            return $this->response->redirect('/user/login');
         }
 
-        if ($isValidToken) {
-            return $handler->handle($request);
-        }
+        return $handler->handle($request);
+    }
 
-        return $this->response->json(
-            [
-                'code' => -1,
-                'data' => [
-                    'error' => '中间件验证token无效，阻止继续向下执行',
-                ],
-            ]
-        );
+    public function isAuth($token)
+    {
+        $redis = make(RedisFactory::class)->get('default');
+        if (!$redis->get(RedisKey::ACCESS_TOKEN_KEY . $token)) {
+            return false;
+        }
+        return true;
     }
 }
