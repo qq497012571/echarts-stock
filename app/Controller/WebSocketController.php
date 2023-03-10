@@ -24,7 +24,6 @@ class WebSocketController extends BaseNamespace
     }
 
     /**
-     * @Event("join-room")
      * @param string $data
      */
     #[Event("join-room")]
@@ -39,7 +38,6 @@ class WebSocketController extends BaseNamespace
     }
 
     /**
-     * @Event("say")
      * @param string $data
      */
     #[Event("say")]
@@ -48,6 +46,4 @@ class WebSocketController extends BaseNamespace
         $data = Json::decode($data);
         $socket->to($data['room'])->emit('event', $socket->getSid() . " say: {$data['message']}");
     }
-
-
 }
