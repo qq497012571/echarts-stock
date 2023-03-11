@@ -9,7 +9,6 @@ services:
         ports:
             - "9501:9501"
             - "9502:9502"
-            
         privileged: true
 
     hyperf-redis:

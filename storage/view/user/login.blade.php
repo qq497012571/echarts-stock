@@ -25,20 +25,14 @@
         form.on('submit(formDemo)', function(data) {
 
             $.post('/user/login', data.field, function(res){
-                console.log(111111111,res)
-                $.cookie('access_token', res.data.token)
 
                 if (res.code == 200) {
-                    layer.msg('登录成功')
+                    $.cookie('x-auth-token', res.data.token)
+                    location.href = '/user/index'
                 } else {
-                    layer.msg('登录失败')
+                    return layer.msg('登录失败')
                 }
 
-                // if (data.data.token) {
-                //     layer.msg('登录成功')
-                // } else {
-                //     layer.msg('登录失败')
-                // }
             },'json');
 
             return false;

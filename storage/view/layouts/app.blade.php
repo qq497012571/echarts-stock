@@ -12,6 +12,7 @@
         <div class="container">
             @yield('content')
         </div>
+        <script src="/echarts.min.js"></script>
         <script src="/jquery-3.6.4.min.js"></script>
         <script src="/jquery.cookie.min.js"></script>
         <script src="/layui/layui.js"></script>

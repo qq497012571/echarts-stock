@@ -6,9 +6,11 @@ namespace App\Middleware;
 
 use App\Constant\RedisKey;
 use App\Model\User;
+use Hyperf\Context\Context;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
 use Hyperf\Redis\RedisFactory;
+use Hyperf\Utils\Codec\Json;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -43,18 +45,22 @@ class HttpAuthMiddleware implements MiddlewareInterface
     {
         $token = $this->request->header('x-auth-token');
         if (!$this->isAuth($token)) {
-            return $this->response->redirect('/user/login');
+            return $this->response->json(['code' => 403, 'msg' => '无访问权限']);
         }
-
         return $handler->handle($request);
     }
 
     public function isAuth($token)
     {
         $redis = make(RedisFactory::class)->get('default');
-        if (!$redis->get(RedisKey::ACCESS_TOKEN_KEY . $token)) {
+        $user = $redis->get(RedisKey::ACCESS_TOKEN_KEY . $token);
+        if (!$user) {
             return false;
         }
+
+        Context::set('user', Json::decode($user));
         return true;
     }
+
+
 }

@@ -5,6 +5,4 @@
 @endsection
 
 @section('script')
-<script src="/app/faker.js"></script>
-<script src="/app/user/main.js"></script>
 @endsection

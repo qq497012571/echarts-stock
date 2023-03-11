@@ -11,7 +11,6 @@ declare(strict_types=1);
  */
 namespace App\Controller;
 
-use App\Service\UserService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\View\RenderInterface;
 use App\Middleware\HttpAuthMiddleware;
@@ -20,33 +19,12 @@ use Hyperf\HttpServer\Annotation\Middlewares;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 
+#[Middlewares([HttpAuthMiddleware::class])]
 #[AutoController()]
-class UserController extends BaseController
+class HomeController extends BaseController
 {
-
-    /**
-     * @var UserService
-     */
-    #[Inject()]
-    public $userService;
-
-
-    #[Middlewares([HttpAuthMiddleware::class])]
     public function index(RenderInterface $render)
     {
-        return $render->render('user/index');
+        return $render->render('index');
     }
-
-    /**
-     * 登录
-     */
-    public function login(RequestInterface $request, ResponseInterface $response, RenderInterface $render)
-    {
-        if ($request->getMethod() == 'POST') {
-            $token = $this->userService->login($request->post('token'));
-            return $this->outputJson(['token' => $token]);
-        }
-        return $render->render('user/login');
-    }
-
 }

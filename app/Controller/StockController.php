@@ -11,7 +11,7 @@ declare(strict_types=1);
  */
 namespace App\Controller;
 
-use App\Service\UserService;
+use App\Service\StockService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\View\RenderInterface;
 use App\Middleware\HttpAuthMiddleware;
@@ -20,33 +20,27 @@ use Hyperf\HttpServer\Annotation\Middlewares;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 
+#[Middlewares([HttpAuthMiddleware::class])]
 #[AutoController()]
-class UserController extends BaseController
+class StockController extends BaseController
 {
-
     /**
-     * @var UserService
+     * @var StockService
      */
     #[Inject()]
-    public $userService;
+    public $stockService;
 
-
-    #[Middlewares([HttpAuthMiddleware::class])]
-    public function index(RenderInterface $render)
+    public function get(RequestInterface $request)
     {
-        return $render->render('user/index');
+        $data = $this->stockService->get($request->query('code', ''), $request->query('klt', '101'), $request->query('limit', '9999'));
+        return $this->outputJson($data);
     }
 
-    /**
-     * 登录
-     */
-    public function login(RequestInterface $request, ResponseInterface $response, RenderInterface $render)
+
+    public function list(RequestInterface $request)
     {
-        if ($request->getMethod() == 'POST') {
-            $token = $this->userService->login($request->post('token'));
-            return $this->outputJson(['token' => $token]);
-        }
-        return $render->render('user/login');
+        $data = $this->stockService->list();
+        return $this->outputJson($data);
     }
 
 }

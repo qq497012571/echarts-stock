@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0d118e564e2361658918203d338dd80d",
+    "content-hash": "939908f81a72fbbdd3745a239f298dc8",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -2090,6 +2090,61 @@
                 "source": "https://github.com/hyperf/hyperf"
             },
             "time": "2023-02-21T06:42:40+00:00"
+        },
+        {
+            "name": "hyperf/session",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hyperf/session.git",
+                "reference": "abad65d14f2458bef4836f19d88d5116c093f054"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hyperf/session/zipball/abad65d14f2458bef4836f19d88d5116c093f054",
+                "reference": "abad65d14f2458bef4836f19d88d5116c093f054",
+                "shasum": ""
+            },
+            "require": {
+                "hyperf/utils": "~3.0.0",
+                "php": ">=8.0",
+                "psr/http-server-middleware": "^1.0"
+            },
+            "suggest": {
+                "hyperf/config": "Required to load session config.",
+                "psr/container": "Required to use SessionFactory."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                },
+                "hyperf": {
+                    "config": "Hyperf\\Session\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hyperf\\Session\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A session library",
+            "homepage": "https://hyperf.io",
+            "keywords": [
+                "php",
+                "session"
+            ],
+            "support": {
+                "docs": "https://hyperf.wiki",
+                "issues": "https://github.com/hyperf/hyperf/issues",
+                "pull-request": "https://github.com/hyperf/hyperf/pulls",
+                "source": "https://github.com/hyperf/hyperf"
+            },
+            "time": "2022-11-01T02:50:54+00:00"
         },
         {
             "name": "hyperf/socketio-server",
@@ -5195,6 +5250,59 @@
                 "source": "https://github.com/hyperf/testing/tree/v3.0.9"
             },
             "time": "2023-02-27T02:49:32+00:00"
+        },
+        {
+            "name": "hyperf/watcher",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hyperf/watcher.git",
+                "reference": "2fa0770171d3e1d7576f3c66a9cbeb479fe1daca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hyperf/watcher/zipball/2fa0770171d3e1d7576f3c66a9cbeb479fe1daca",
+                "reference": "2fa0770171d3e1d7576f3c66a9cbeb479fe1daca",
+                "shasum": ""
+            },
+            "require": {
+                "ext-posix": "*",
+                "hyperf/command": "~3.0.0",
+                "hyperf/di": "~3.0.0",
+                "hyperf/framework": "~3.0.0",
+                "php": ">=8.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                },
+                "hyperf": {
+                    "config": "Hyperf\\Watcher\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Functions.php"
+                ],
+                "psr-4": {
+                    "Hyperf\\Watcher\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Hot reload watcher for Hyperf",
+            "keywords": [
+                "hyperf",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/hyperf/watcher/issues",
+                "source": "https://github.com/hyperf/watcher/tree/v3.0.0"
+            },
+            "time": "2022-12-27T02:58:03+00:00"
         },
         {
             "name": "mockery/mockery",
