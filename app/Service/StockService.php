@@ -88,7 +88,7 @@ class StockService
     public function list()
     {
         $user = Context::get('user');
-        UserStock::query()->where('user_id', $user)
+        // UserStock::query()->where('user_id', $user)
     }
 
 
