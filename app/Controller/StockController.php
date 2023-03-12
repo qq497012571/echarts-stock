@@ -59,7 +59,8 @@ class StockController extends BaseController
     public function kline(RequestInterface $request, RenderInterface $render)
     {
         $code = $request->query('code');
-        $data = $this->stockService->get($code);
+        $klt = $request->query('klt', 101);
+        $data = $this->stockService->get($code, $klt);
         return $render->render('stock/kline', ['data' => $data]);
     }
     

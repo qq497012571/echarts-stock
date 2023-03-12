@@ -68,14 +68,8 @@
                 </ul>
             </div>
         </div>
-
-        <div class="layui-body">
+        <div class="layui-body" style="padding: 10px;">
             <iframe src="" name="body" frameborder="0" width="100%" height="100%"></iframe>
-        </div>
-
-        <div class="layui-footer">
-            <!-- 底部固定区域 -->
-            底部固定区域
         </div>
     </div>
     <script type="text/javascript" src="/klinecharts.js"></script>

@@ -55,14 +55,15 @@
                 ,
                 layEvent = obj.event; //获得 lay-event 对应的值
             if (layEvent === 'detail') {
-                layer.open({
-                    title: "查看",
+                var index = layer.open({
+                    title: data.name,
                     type: 2,
                     area: ['700px', '450px'],
                     fixed: false, //不固定
                     maxmin: true,
                     content: '/stock/kline?code=' + data.code,
                 });
+                layer.full(index);
             } else if (layEvent === 'more') {
                 //下拉菜单
                 dropdown.render({
