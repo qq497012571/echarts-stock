@@ -16,6 +16,8 @@ use App\Constant\RedisKey;
 use Hyperf\Redis\RedisFactory;
 use Hyperf\Di\Annotation\Inject;
 use App\Exception\ServiceException;
+use Hyperf\Contract\SessionInterface;
+
 
 class UserService
 {
@@ -24,6 +26,13 @@ class UserService
      */
     #[Inject()]
     public $redisFactory;
+
+    /**
+     * @var SessionInterface
+     */
+    #[Inject()]
+    public $session;
+
 
     /**
      * 用户登录
@@ -35,10 +44,17 @@ class UserService
         if (!$user) {
             throw new ServiceException("用户不存在", 500);
         }
-        $redis = make(RedisFactory::class)->get('default');
-        $redis->set(RedisKey::ACCESS_TOKEN_KEY . $token, json_encode($user->toArray()));
 
-        return $token;
+        $this->session->set('user', $user->toArray());
+    }
+
+
+    /**
+     * 用户退出
+     */
+    public function logout()
+    {   
+        $this->session->clear();
     }
 
 }

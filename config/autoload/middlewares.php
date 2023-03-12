@@ -14,6 +14,7 @@ use App\Middleware\WebsocketAuthMiddleware;
  */
 return [
     'http' => [
+        \Hyperf\Session\Middleware\SessionMiddleware::class,
     ],
 
     'socket-io' => [

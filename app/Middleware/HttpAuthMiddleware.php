@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Middleware;
 
 use App\Constant\RedisKey;
-use App\Model\User;
 use Hyperf\Context\Context;
+use Hyperf\Contract\SessionInterface;
+use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
 use Hyperf\Redis\RedisFactory;
@@ -16,6 +17,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+
 
 class HttpAuthMiddleware implements MiddlewareInterface
 {
@@ -33,6 +35,13 @@ class HttpAuthMiddleware implements MiddlewareInterface
      * @var HttpResponse
      */
     protected $response;
+    
+    /**
+     * @var SessionInterface
+     */
+    #[Inject()]
+    protected $session;
+    
 
     public function __construct(ContainerInterface $container, HttpResponse $response, RequestInterface $request)
     {
@@ -43,22 +52,17 @@ class HttpAuthMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $token = $this->request->header('x-auth-token');
-        if (!$this->isAuth($token)) {
-            return $this->response->json(['code' => 403, 'msg' => '无访问权限']);
+        if (!$this->isAuth()) {
+            return $this->response->redirect('/login');
         }
         return $handler->handle($request);
     }
 
-    public function isAuth($token)
+    public function isAuth()
     {
-        $redis = make(RedisFactory::class)->get('default');
-        $user = $redis->get(RedisKey::ACCESS_TOKEN_KEY . $token);
-        if (!$user) {
+        if (!$this->session->has('user')) {
             return false;
         }
-
-        Context::set('user', Json::decode($user));
         return true;
     }
 

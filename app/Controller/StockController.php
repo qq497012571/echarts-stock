@@ -36,11 +36,31 @@ class StockController extends BaseController
         return $this->outputJson($data);
     }
 
-
-    public function list(RequestInterface $request)
+    
+    public function list(RequestInterface $request, ResponseInterface $response, RenderInterface $render)
     {
-        $data = $this->stockService->list();
-        return $this->outputJson($data);
+        if ($this->isAjax()) {
+
+            $params = [
+                'page' => $request->query('page', 1),
+                'limit' => $request->query('limit', 10),
+            ];
+
+            $list = $this->stockService->list($params);
+            return $this->outputJson($list);
+        }
+        return $render->render('stock/list');
     }
 
+
+    /**
+     * 展示K线图表
+     */
+    public function kline(RequestInterface $request, RenderInterface $render)
+    {
+        $code = $request->query('code');
+        $data = $this->stockService->get($code);
+        return $render->render('stock/kline', ['data' => $data]);
+    }
+    
 }

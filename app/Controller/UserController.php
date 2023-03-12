@@ -20,6 +20,11 @@ use Hyperf\HttpServer\Annotation\Middlewares;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 
+
+/**
+ * 我的持仓
+ */
+#[Middlewares([HttpAuthMiddleware::class])]
 #[AutoController()]
 class UserController extends BaseController
 {
@@ -29,24 +34,14 @@ class UserController extends BaseController
      */
     #[Inject()]
     public $userService;
-
-
-    #[Middlewares([HttpAuthMiddleware::class])]
-    public function index(RenderInterface $render)
+    
+   
+    public function index(RequestInterface $request, ResponseInterface $response, RenderInterface $render)
     {
         return $render->render('user/index');
     }
 
-    /**
-     * 登录
-     */
-    public function login(RequestInterface $request, ResponseInterface $response, RenderInterface $render)
-    {
-        if ($request->getMethod() == 'POST') {
-            $token = $this->userService->login($request->post('token'));
-            return $this->outputJson(['token' => $token]);
-        }
-        return $render->render('user/login');
-    }
+
+    
 
 }
