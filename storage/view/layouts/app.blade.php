@@ -15,7 +15,7 @@
             <!-- 头部区域（可配合layui 已有的水平导航） -->
             <ul class="layui-nav layui-layout-left">
                 <!-- 移动端显示 -->
-                <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
+                <!-- <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
                     <i class="layui-icon layui-icon-spread-left"></i>
                 </li>
 
@@ -29,7 +29,7 @@
                         <dd><a href="">menu 22</a></dd>
                         <dd><a href="">menu 33</a></dd>
                     </dl>
-                </li>
+                </li> -->
             </ul>
             <ul class="layui-nav layui-layout-right">
                 <li class="layui-nav-item layui-hide layui-show-md-inline-block">
@@ -38,9 +38,7 @@
                         tester
                     </a>
                     <dl class="layui-nav-child">
-                        <dd><a href="">Your Profile</a></dd>
-                        <dd><a href="">Settings</a></dd>
-                        <dd><a href="">Sign out</a></dd>
+                        <dd><a href="/logout">登出</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>

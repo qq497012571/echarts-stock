@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Exception\ServiceException;
+use App\Model\StockMark;
 use App\Model\UserStock;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\HandlerStackFactory;
@@ -101,5 +102,24 @@ class StockService
         $list = UserStock::query()->where('user_id', $user['id'])->offset(($page - 1) * $limit)->limit($limit)->get();
         return $list;
     }
+
+
+    /**
+     * 股票标记
+     * @param $code
+     * @param $markOption
+     */
+    public function addMark($code, $markType, $markOption)
+    {
+        $user = $this->session->get('user');
+
+        $stockMark = new StockMark();
+        $stockMark->code = $code;
+        $stockMark->user_id = $user['id'];
+        $stockMark->mark_type = $markType;
+        $stockMark->mark_option = $markOption;
+        $stockMark->save();
+    }
+
 
 }

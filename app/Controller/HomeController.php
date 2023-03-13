@@ -33,7 +33,6 @@ class HomeController extends BaseController
     #[Middlewares([HttpAuthMiddleware::class])]
     public function index(RenderInterface $render)
     {
-        echo 123123123,"\n";
         return $render->render('layouts/app');
     }
 

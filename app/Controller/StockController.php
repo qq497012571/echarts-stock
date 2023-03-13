@@ -9,12 +9,14 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
+
 namespace App\Controller;
 
 use App\Service\StockService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\View\RenderInterface;
 use App\Middleware\HttpAuthMiddleware;
+use App\ViewHelper\StockViewHelper;
 use Hyperf\HttpServer\Annotation\AutoController;
 use Hyperf\HttpServer\Annotation\Middlewares;
 use Hyperf\HttpServer\Contract\RequestInterface;
@@ -32,11 +34,12 @@ class StockController extends BaseController
 
     public function get(RequestInterface $request)
     {
-        $data = $this->stockService->get($request->query('code', ''), $request->query('klt', '101'), $request->query('limit', '9999'));
+        // $data = $this->stockService->get($request->query('code', ''), $request->query('klt', '101'), $request->query('limit', '9999'));
+        $data = [];
         return $this->outputJson($data);
     }
 
-    
+
     public function list(RequestInterface $request, ResponseInterface $response, RenderInterface $render)
     {
         if ($this->isAjax()) {
@@ -61,7 +64,30 @@ class StockController extends BaseController
         $code = $request->query('code');
         $klt = $request->query('klt', 101);
         $data = $this->stockService->get($code, $klt);
-        return $render->render('stock/kline', ['data' => $data]);
+        // $marks = $this->stockService->getMarks($code);
+        return $render->render('stock/kline', [
+            'code' => $code,
+            'data' => $data,
+            'marks' => [],
+            'stock_ma_btn' => StockViewHelper::createStockMaBtn($code, $klt),
+        ]);
     }
-    
+
+
+    /**
+     * 标记价格
+     * @param RequestInterface $request
+     */
+    public function addMark(RequestInterface $request)
+    {
+        if ($request->getMethod() == 'POST') {
+            $code = $request->input('code');
+            $markType = $request->input('mark_type');
+            $markOption = $request->input('mark_option');
+            $this->stockService->addMark($code, $markType, $markOption);
+            return $this->outputJson([]);
+        }
+    }
+
+
 }
