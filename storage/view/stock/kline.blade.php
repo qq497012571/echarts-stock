@@ -30,6 +30,10 @@
         var chart = new KlineCharts('kline-charts')
         var currentMa = 'day'
 
+
+        registerOverlayKeyup();
+
+
         chart.chart.loadMore((timestamp) => {
 
             fetchKlines(code, currentMa, 286, timestamp).done(function(res){
@@ -53,7 +57,7 @@
         });
 
         $('#add-mark').on('click', function() {
-            layer.prompt(function(value, index, elem) {
+            layer.prompt({'title': "预警"}, function(value, index, elem) {
                 var option = chart.createPriceLineOverlay(value);
                 var data = {
                     code: code,
@@ -65,7 +69,7 @@
                     layer.close(index);
                 });
             });
-        })
+        });
 
 
         function loadCharts(code, ma) {
@@ -81,6 +85,16 @@
                     chart.createPriceLineOverlayByOption(JSON.parse(m.mark_option))
                 });
             });
+        }
+
+
+        /**
+         * 注册页面按键事件
+         */
+        function registerOverlayKeyup() {
+            $(document).on('keyup', function(e){
+                console.log(e)
+            })
         }
     })
 </script>

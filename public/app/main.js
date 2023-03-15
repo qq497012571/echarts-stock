@@ -8,6 +8,8 @@ class KlineCharts {
         this.id = domId
 
         this.chart = klinecharts.init(this.id)
+        this.chart.setLeftMinVisibleBarCount(30)
+        this.chart.setRightMinVisibleBarCount(50)
         this.chart.setLocale('zh-CN')
         this.chart.setStyles({
             // 蜡烛图

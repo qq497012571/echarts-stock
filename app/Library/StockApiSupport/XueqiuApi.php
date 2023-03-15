@@ -2,6 +2,7 @@
 
 namespace App\Library\StockApiSupport;
 
+use App\Log;
 use GuzzleHttp\Client;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\HandlerStackFactory;
@@ -65,9 +66,12 @@ class XueqiuApi
         }
 
         $url = "/v5/stock/chart/kline.json?symbol=$code&begin=$begin&period=$ma&count=-$limit";
+        $logger = Log::get();
+        $logger->info($url);
         $response = $this->_client->request('GET', $url, $this->_option);
         $result = $response->getBody()->getContents();
         $data = Json::decode($result);
+
         return $this->handleData($data);
     }
 
