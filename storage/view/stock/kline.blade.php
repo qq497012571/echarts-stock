@@ -4,7 +4,6 @@
 <div class="layui-fluid" style="padding: 10px;">
     <div class="layui-row">
         <div class="layui-col-md12">
-
             <div class="layui-btn-group ma-bars-box">
                 <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" key="day">日k</button>
                 <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" key="week">周k</button>
@@ -14,13 +13,12 @@
                 <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" key="5m">5分</button>
                 <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" key="1m">1分</button>
             </div>
-
             <div class="layui-btn-group">
                 <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" id="add-mark">
                     <i class="layui-icon layui-icon-flag"></i>
                 </button>
             </div>
-            <div id="kline-charts" style="height: 80%"></div>
+            <div id="kline-charts" style="height: 100%"></div>
         </div>
     </div>
 </div>

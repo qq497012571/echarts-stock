@@ -21,8 +21,6 @@ class KlineCharts {
             },
         });
 
-        this.chart.setBarSpace(50)
-
         this.setIndicatorMA()
         this.setIndicatorVOL()
         this.setIndicatorMACD()
