@@ -4,10 +4,10 @@ namespace App\Library\StockApiSupport;
 
 use App\Log;
 use GuzzleHttp\Client;
+use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\HandlerStackFactory;
 use Hyperf\Utils\Codec\Json;
-
 class XueqiuApi
 {
 
@@ -17,10 +17,12 @@ class XueqiuApi
     #[Inject()]
     public $stackFactory;
 
+
     /**
-     * 雪球登录后的cookie
+     * @var StdoutLoggerInterface
      */
-    public $userCookie = '';
+    #[Inject()]
+    public $logger;
 
     /**
      * @var Client
@@ -29,10 +31,8 @@ class XueqiuApi
     private $_option;
 
 
-
     public function __construct($userCookie)
     {
-        $this->userCookie = $userCookie;
         $stack = $this->stackFactory->create();
 
         $this->_client = new Client([
@@ -49,7 +49,7 @@ class XueqiuApi
             'headers' => [
                 'authority' => 'stock.xueqiu.com',
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
-                'cookie' => $this->userCookie,
+                'cookie' => $userCookie,
             ]
         ];
     }
@@ -66,8 +66,7 @@ class XueqiuApi
         }
 
         $url = "/v5/stock/chart/kline.json?symbol=$code&begin=$begin&period=$ma&count=-$limit";
-        $logger = Log::get();
-        $logger->info($url);
+        $this->logger->info($url);
         $response = $this->_client->request('GET', $url, $this->_option);
         $result = $response->getBody()->getContents();
         $data = Json::decode($result);
@@ -81,6 +80,7 @@ class XueqiuApi
     public function getList()
     {
         $url = "/v5/stock/portfolio/stock/list.json?size=1000&category=1";
+        // $this->logger->info($url);
         $response = $this->_client->request('GET', $url, $this->_option);
         $result = Json::decode($response->getBody()->getContents());
         return $result;

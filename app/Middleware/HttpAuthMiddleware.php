@@ -53,7 +53,7 @@ class HttpAuthMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         if (!$this->isAuth()) {
-            return $this->response->redirect('/login');
+            return $this->response->json(['code' => 405, 'msg' => '登录过期']);
         }
         return $handler->handle($request);
     }

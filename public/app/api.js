@@ -18,8 +18,8 @@ var fetchMarks = function(code) {
 
 /**
  * 添加K线标记
- * @param code 
+ * @param data 
  */
-var fetchAddMarks = function(code) {
-    return $.get('/api/stock/addMark', {code: code})
+var fetchAddMarks = function(data) {
+    return $.post('/api/stock/addMark', data)
 }

@@ -18,10 +18,6 @@ use App\Model\User;
 use App\Model\UserStock;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\HandlerStackFactory;
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
-use Hyperf\Utils\Codec\Json;
-use Hyperf\Guzzle\CoroutineHandler;
 use Hyperf\Contract\SessionInterface;
 
 class StockService

@@ -161,7 +161,8 @@ class KlineCharts {
                     dashedValue: [4, 4],
                     size: 2,
                 }
-            }
+            },
+            lock: false
         };
         this.chart.createOverlay(option);
         return option

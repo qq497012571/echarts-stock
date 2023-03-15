@@ -33,23 +33,23 @@
 
         registerOverlayKeyup();
 
+        loadCharts(code, currentMa)
+
 
         chart.chart.loadMore((timestamp) => {
-
-            fetchKlines(code, currentMa, 286, timestamp).done(function(res){
-
-                console.log('more', res)
-
+            fetchKlines(code, currentMa, 286, timestamp).done(function(res) {
+                hasMore = true
+                if (res.data.length != 286) {
+                    hasMore = false
+                }
                 res.data.length && chart.chart.applyMoreData(
                     res.data,
-                    true
+                    hasMore
                 );
 
+                console.log(chart.chart.getDataList())
             })
-
         })
-
-        loadCharts(code, currentMa)
 
         $('.ma-bars-box button').on('click', function() {
             var ma = $(this).attr('key');
@@ -57,7 +57,9 @@
         });
 
         $('#add-mark').on('click', function() {
-            layer.prompt({'title': "预警"}, function(value, index, elem) {
+            layer.prompt({
+                'title': "预警"
+            }, function(value, index, elem) {
                 var option = chart.createPriceLineOverlay(value);
                 var data = {
                     code: code,
@@ -72,12 +74,13 @@
         });
 
 
+        
         function loadCharts(code, ma) {
 
             currentMa = ma
             chart.chart.clearData()
 
-            $.when(fetchKlines(code, ma), fetchMarks(code)).done(function(d1, d2) {
+            $.when(fetchKlines(code, ma, 300, new Date().getTime()), fetchMarks(code)).done(function(d1, d2) {
                 var klines = d1[0].data;
                 var marks = d2[0].data;
                 klines.length && chart.data(klines);
@@ -92,7 +95,7 @@
          * 注册页面按键事件
          */
         function registerOverlayKeyup() {
-            $(document).on('keyup', function(e){
+            $(document).on('keyup', function(e) {
                 console.log(e)
             })
         }
