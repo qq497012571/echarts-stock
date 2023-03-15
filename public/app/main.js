@@ -5,7 +5,9 @@ class KlineCharts {
 
     constructor(domId) {
 
-        this.chart = klinecharts.init(domId)
+        this.id = domId
+
+        this.chart = klinecharts.init(this.id)
         this.chart.setLocale('zh-CN')
         this.chart.setStyles({
             // 蜡烛图
@@ -27,17 +29,18 @@ class KlineCharts {
     }
 
     handleKlines(klines) {
-        return klines.map(function (data) {
-            return {
-                timestamp: data.timestamp,
-                open: +data.open,
-                high: +data.high,
-                low: +data.low,
-                close: +data.close,
-                volume: Math.ceil(+data.volume),
-                turnover: +data.turnover,
-            }
-        })
+        return klines;
+        // return klines.map(function (data) {
+        //     return {
+        //         timestamp: data.timestamp,
+        //         open: +data.open,
+        //         high: +data.high,
+        //         low: +data.low,
+        //         close: +data.close,
+        //         volume: Math.ceil(+data.volume),
+        //         // turnover: +data.turnoverrate,
+        //     }
+        // })
     }
 
     data(klines) {
@@ -135,7 +138,6 @@ class KlineCharts {
                             closeSums[index] -= dataList[i - (p - 1)].close;
                         }
                     });
-                    console.log('calc ma', ma)
                     return ma;
                 });
             }
@@ -157,7 +159,7 @@ class KlineCharts {
                     show: true,
                     style: 'dashed',
                     dashedValue: [4, 4],
-                    size: 1,
+                    size: 2,
                 }
             }
         };
@@ -165,4 +167,11 @@ class KlineCharts {
         return option
     }
     
+
+    createPriceLineOverlayByOption(option) {
+        this.chart.createOverlay(option);
+        return option
+    }
 }
+
+

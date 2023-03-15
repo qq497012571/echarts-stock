@@ -23,9 +23,13 @@ class BaseController extends AbstractController
     #[Inject()]
     protected $_request;
     
-    public function outputJson($data = [], $code = 0, $msg = 'success')
+    public function outputJson($data = [], $count = null, $code = 0, $msg = 'success')
     {
-        return $this->_response->json(['code' => $code, 'msg' => $msg, 'data' => $data]);
+        $output = ['code' => $code, 'msg' => $msg, 'data' => $data];
+        if (!is_null($count)) {
+            $output['count'] = $count;
+        }
+        return $this->_response->json($output);
     }
     
     public function isAjax()

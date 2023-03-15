@@ -10,8 +10,8 @@ use Hyperf\DbConnection\Model\Model;
  * @property int $id 
  * @property string $token 
  * @property string $name 
- * @property int $created_time 
- * @property int $updated_time 
+ * @property \Carbon\Carbon $created_at 
+ * @property \Carbon\Carbon $updated_at 
  */
 class User extends Model
 {
@@ -28,5 +28,5 @@ class User extends Model
     /**
      * The attributes that should be cast to native types.
      */
-    protected array $casts = ['id' => 'integer', 'created_time' => 'integer', 'updated_time' => 'integer'];
+    protected array $casts = ['id' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 }

@@ -17,8 +17,7 @@
         //第一个实例
         table.render({
             elem: '#sotck-table',
-            height: 312,
-            url: '/stock/list' //数据接口
+            url: '/api/stock/list' //数据接口
                 ,
             page: true //开启分页
                 ,

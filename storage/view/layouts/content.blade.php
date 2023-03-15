@@ -11,11 +11,12 @@
         @yield('content')
     </div>
     <script type="text/javascript" src="/klinecharts.js"></script>
-    <script src="/echarts.min.js"></script>
-    <script src="/jquery-3.6.4.min.js"></script>
-    <script src="/jquery.cookie.min.js"></script>
-    <script src="/layui/layui.js"></script>
-    <script src="/app/main.js"></script>
+    <script type="text/javascript" src="/jquery-3.6.4.min.js"></script>
+    <script type="text/javascript" src="/jquery.cookie.min.js"></script>
+    <script type="text/javascript" src="/echarts.min.js"></script>
+    <script type="text/javascript" src="/layui/layui.js"></script>
+    <script type="text/javascript" src="/app/api.js"></script>
+    <script type="text/javascript" src="/app/main.js"></script>
     <script>
         function getUrlQuery(name) {
             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象

@@ -9,11 +9,12 @@ use Hyperf\DbConnection\Model\Model;
 /**
  * @property int $id 
  * @property string $code 
+ * @property string $value 
  * @property int $user_id 
  * @property int $mark_type 
  * @property string $mark_option 
- * @property int $created_time 
- * @property int $updated_time 
+ * @property \Carbon\Carbon $created_at 
+ * @property \Carbon\Carbon $updated_at 
  */
 class StockMark extends Model
 {
@@ -30,5 +31,5 @@ class StockMark extends Model
     /**
      * The attributes that should be cast to native types.
      */
-    protected array $casts = ['id' => 'integer', 'user_id' => 'integer', 'mark_type' => 'integer', 'created_time' => 'integer', 'updated_time' => 'integer'];
+    protected array $casts = ['id' => 'integer', 'user_id' => 'integer', 'mark_type' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 }
