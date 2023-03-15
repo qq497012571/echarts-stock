@@ -30,10 +30,26 @@
 
         var code = getUrlQuery('code');
         var chart = new KlineCharts('kline-charts')
+        var currentMa = 'day'
 
-        loadCharts(code, 'day')
+        chart.chart.loadMore((timestamp) => {
 
-        $('.ma-bars-box button').on('click', function(){
+            fetchKlines(code, currentMa, 286, timestamp).done(function(res){
+
+                console.log('more', res)
+
+                res.data.length && chart.chart.applyMoreData(
+                    res.data,
+                    true
+                );
+
+            })
+
+        })
+
+        loadCharts(code, currentMa)
+
+        $('.ma-bars-box button').on('click', function() {
             var ma = $(this).attr('key');
             loadCharts(code, ma)
         });
@@ -56,6 +72,7 @@
 
         function loadCharts(code, ma) {
 
+            currentMa = ma
             chart.chart.clearData()
 
             $.when(fetchKlines(code, ma), fetchMarks(code)).done(function(d1, d2) {
@@ -66,7 +83,6 @@
                     chart.createPriceLineOverlayByOption(JSON.parse(m.mark_option))
                 });
             });
-
         }
     })
 </script>

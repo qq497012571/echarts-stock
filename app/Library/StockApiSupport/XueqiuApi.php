@@ -58,16 +58,16 @@ class XueqiuApi
         return [$code, $ma, $limit];
     }
 
-    public function getKline($code, $ma, $limit)
-    {
-        $begin = time() . '000';
+    public function getKline($code, $ma, $limit, $begin = null)
+    {   
+        if (!$begin) {
+            $begin = time() . '000';
+        }
+
         $url = "/v5/stock/chart/kline.json?symbol=$code&begin=$begin&period=$ma&count=-$limit";
-
         $response = $this->_client->request('GET', $url, $this->_option);
-
         $result = $response->getBody()->getContents();
         $data = Json::decode($result);
-
         return $this->handleData($data);
     }
 

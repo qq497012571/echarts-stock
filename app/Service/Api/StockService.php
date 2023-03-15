@@ -44,12 +44,12 @@ class StockService
      * @param $ma
      * @param $limit
      */
-    public function get($code, $ma, $limit)
+    public function get($code, $ma, $limit, $timestamp)
     {
         $user = $this->session->get('user');
         $user = User::query()->where('id', $user['id'])->first();
         $xueqiuApi = new XueqiuApi($user['xueqiu_cookie']);
-        $klines = $xueqiuApi->getKline($code, $ma, $limit);
+        $klines = $xueqiuApi->getKline($code, $ma, $limit, $timestamp);
         return $klines;
     }
 

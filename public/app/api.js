@@ -4,8 +4,8 @@
  * @param {*} code 
  * @param {*} ma 
  */
-var fetchKlines = function(code, ma, limit = 286) {
-    return $.get('/api/stock/klines', {code: code, ma:ma, limit:limit})
+var fetchKlines = function(code, ma, limit = 286, timestamp = 0) {
+    return $.get('/api/stock/klines', {code: code, ma:ma, limit:limit, timestamp: timestamp})
 }
 
 /**

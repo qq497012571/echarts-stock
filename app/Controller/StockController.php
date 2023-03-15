@@ -12,11 +12,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Service\StockService;
-use Hyperf\Di\Annotation\Inject;
 use Hyperf\View\RenderInterface;
 use App\Middleware\HttpAuthMiddleware;
-use App\ViewHelper\StockViewHelper;
 use Hyperf\HttpServer\Annotation\AutoController;
 use Hyperf\HttpServer\Annotation\Middlewares;
 use Hyperf\HttpServer\Contract\RequestInterface;
@@ -26,13 +23,6 @@ use Hyperf\HttpServer\Contract\ResponseInterface;
 #[AutoController()]
 class StockController extends BaseController
 {
-    /**
-     * @var StockService
-     */
-    #[Inject()]
-    public $stockService;
-
-    
 
     /**
      * 自选股表格

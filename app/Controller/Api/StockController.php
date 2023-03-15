@@ -42,8 +42,9 @@ class StockController extends BaseController
         $code = $request->input('code');
         $ma = $request->input('ma', Stock::QUERY_DAY);
         $limit = $request->input('limit', Stock::QUERY_DAY_LIMIT);
+        $timestamp = $request->input('timestamp');
 
-        $data = $this->stockService->get($code, $ma, $limit);
+        $data = $this->stockService->get($code, $ma, $limit, $timestamp);
         return $this->outputJson($data);
     }
 
