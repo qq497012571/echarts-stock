@@ -1,6 +1,12 @@
 @extends('layouts.content')
 
-
+<div class="demoTable">
+    搜索ID：
+    <div class="layui-inline">
+        <input class="layui-input" name="id" id="demoReload" autocomplete="off">
+    </div>
+    <button class="layui-btn" data-type="reload">搜索</button>
+</div>
 <table id="sotck-table" lay-filter="stock-table"></table>
 
 @section('script')
