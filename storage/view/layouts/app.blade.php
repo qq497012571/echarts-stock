@@ -53,11 +53,11 @@
             <div class="layui-side-scroll">
                 <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
                 <ul class="layui-nav layui-nav-tree" lay-filter="test">
-                    <li class="layui-nav-item"><a href="javascript:;">市场</a></li>
+                    <!-- <li class="layui-nav-item"><a href="javascript:;">市场</a></li> -->
                     <li class="layui-nav-item layui-nav-itemed">
                         <a class="" href="javascript:;">个人</a>
                         <dl class="layui-nav-child">
-                            <dd><a href="/stock/list" target="body">我的预警</a></dd>
+                            <dd><a href="/stock/list" target="body">我的自选</a></dd>
                             <dd><a href="javascript:;">模拟炒股</a></dd>
                             <dd><a href="javascript:;">炒股练习</a></dd>
                             <dd><a href="javascript:;">策略选股</a></dd>

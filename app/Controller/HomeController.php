@@ -36,6 +36,12 @@ class HomeController extends BaseController
         return $render->render('layouts/app');
     }
 
+
+    public function test(RenderInterface $render)
+    {
+        return $render->render('test/test');
+    }
+
     /**
      * 登录
      */

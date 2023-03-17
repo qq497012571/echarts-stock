@@ -63,7 +63,7 @@
                 var index = layer.open({
                     title: data.name,
                     type: 2,
-                    area: ['700px', '450px'],
+                    area: ['auto', '700px'],
                     fixed: false, //不固定
                     maxmin: true,
                     content: '/stock/kline?code=' + data.code,

@@ -1,10 +1,10 @@
 
 /**
  * 获取k线
- * @param {*} code 
- * @param {*} ma 
+ * @param code 
+ * @param ma 
  */
-var fetchKlines = function(code, ma, limit = 286, timestamp = 0) {
+let fetchKlines = function(code, ma, limit = 286, timestamp = 0) {
     return $.get('/api/stock/klines', {code: code, ma:ma, limit:limit, timestamp: timestamp})
 }
 
@@ -12,7 +12,7 @@ var fetchKlines = function(code, ma, limit = 286, timestamp = 0) {
  * 获取k线图标记
  * @param code 
  */
-var fetchMarks = function(code) {
+let fetchMarks = function(code) {
     return $.get('/api/stock/marks', {code: code})
 }
 
@@ -20,6 +20,8 @@ var fetchMarks = function(code) {
  * 添加K线标记
  * @param data 
  */
-var fetchAddMarks = function(data) {
+let fetchAddMarks = function(data) {
     return $.post('/api/stock/addMark', data)
 }
+
+export {fetchKlines, fetchMarks, fetchAddMarks}
