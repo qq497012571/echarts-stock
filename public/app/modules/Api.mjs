@@ -24,4 +24,13 @@ let fetchAddMarks = function(data) {
     return $.post('/api/stock/addMark', data)
 }
 
-export {fetchKlines, fetchMarks, fetchAddMarks}
+/**
+ * 移除K线标记
+ * @param data 
+ */
+let fetchRemoveMarks = function(data) {
+    return $.post('/api/stock/removeMark', data)
+}
+
+
+export {fetchKlines, fetchMarks, fetchAddMarks, fetchRemoveMarks}

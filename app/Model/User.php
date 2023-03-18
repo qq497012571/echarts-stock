@@ -10,6 +10,7 @@ use Hyperf\DbConnection\Model\Model;
  * @property int $id 
  * @property string $token 
  * @property string $name 
+ * @property string $xueqiu_cookie 
  * @property \Carbon\Carbon $created_at 
  * @property \Carbon\Carbon $updated_at 
  */
