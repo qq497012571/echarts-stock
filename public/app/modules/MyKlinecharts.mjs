@@ -70,9 +70,9 @@ class AppKlineCharts {
         option['onRemoved'] = this.removeOverlay;
 
         if (option['points'] !== undefined) {
-            option.points = option.points.map(function (p) {
-                return {timestamp: p.timestamp, value: p.value}
-            });
+            // option.points = option.points.map(function (p) {
+            //     return {timestamp: p.timestamp, value: p.value}
+            // });
         }
 
         if (override) {
