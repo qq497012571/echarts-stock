@@ -17,7 +17,7 @@ return [
         \Hyperf\Session\Middleware\SessionMiddleware::class,
     ],
 
-    'socket-io' => [
+    'ws' => [
         WebsocketAuthMiddleware::class,
     ],
 ];

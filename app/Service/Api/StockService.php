@@ -100,21 +100,30 @@ class StockService
 
 
     /**
-     * 股票标记
-     * @param $code
-     * @param $markOption
+     * 新增标记
      */
-    public function addMark($code, $value, $markType, $markOption)
+    public function addMark($code, $overlayId, $option, $markType)
     {
         $user = $this->session->get('user');
-
-        $stockMark = new StockMark();
-        $stockMark->code = $code;
-        $stockMark->value = $value;
+        $stockMark = StockMark::query()->where('code', $code)->where('user_id', $user['id'])->where('overlay_id', $overlayId)->first();
+        if (is_null($stockMark)) {
+            $stockMark = new StockMark();
+            $stockMark->code = $code;
+            $stockMark->overlay_id = $overlayId;
+            $stockMark->mark_type = $markType;
+        }
+        $stockMark->option = $option;
         $stockMark->user_id = $user['id'];
-        $stockMark->mark_type = $markType;
-        $stockMark->mark_option = $markOption;
         $stockMark->save();
+    }
+
+    /**
+     * 删除标记
+     */
+    public function removeMark($code, $overlayId)
+    {
+        $user = $this->session->get('user');
+        StockMark::query()->where('code', $code)->where('user_id', $user['id'])->where('overlay_id', $overlayId)->delete();
     }
 
     /**

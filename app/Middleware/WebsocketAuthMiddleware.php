@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
+use App\Model\User;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
+use Hyperf\WebSocketServer\Context;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -42,10 +44,12 @@ class WebsocketAuthMiddleware implements MiddlewareInterface
         $isValidToken = false;
 
         $token = $this->request->query('token');
-        if ($token == 'xxxxx') {
-            $isValidToken = true;
-        }
 
+        // $user = User::query()->where('token', $token)->first();
+
+        // var_dump($user);
+        // Context::set('user', $user);
+        $isValidToken = true;
         if ($isValidToken) {
             return $handler->handle($request);
         }

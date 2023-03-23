@@ -47,5 +47,4 @@ class StockController extends BaseController
     {
         return $render->render('stock/test');
     }
-
 }

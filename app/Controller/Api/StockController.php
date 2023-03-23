@@ -67,13 +67,18 @@ class StockController extends BaseController
     public function addMark(RequestInterface $request)
     {
         if ($request->getMethod() == 'POST') {
-            $code = $request->input('code');
-            $value = $request->input('value');
-            $markType = $request->input('mark_type');
-            $markOption = $request->input('mark_option');
-            $this->stockService->addMark($code, $value, $markType, $markOption);
+            $this->stockService->addMark($request->input('code'), $request->input('overlay_id'), $request->input('option'), $request->input('mark_type'));
             return $this->outputJson([]);
         }
+    }
+
+    public function removeMark(RequestInterface $request)
+    {
+        $this->stockService->removeMark($request->input('code'), $request->input('overlay_id'));
+        return $this->outputJson([]);
+
+        // if ($request->getMethod() == 'POST') {
+        // }
     }
 
 }

@@ -26,3 +26,8 @@ Router::addRoute(['GET', 'POST'], '/logout', 'App\Controller\HomeController@logo
 Router::get('/favicon.ico', function () {
     return '';
 });
+
+
+Router::addServer('ws', function () {
+    Router::get('/', 'App\Controller\WebSocketController');
+});

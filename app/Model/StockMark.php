@@ -9,10 +9,10 @@ use Hyperf\DbConnection\Model\Model;
 /**
  * @property int $id 
  * @property string $code 
- * @property string $value 
  * @property int $user_id 
+ * @property string $overlay_id 
+ * @property string $option 
  * @property int $mark_type 
- * @property string $mark_option 
  * @property \Carbon\Carbon $created_at 
  * @property \Carbon\Carbon $updated_at 
  */

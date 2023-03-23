@@ -1,14 +1,15 @@
+import { fetchAddMarks,fetchRemoveMarks } from "./Api.mjs";
+import { getUrlQuery } from "./Utils.mjs";
+
 /**
  * 覆盖物: 画矩形框
  */
 const drawRectOverlay = {
-    // 名称
     name: 'sampleRect',
-    // 完成一个圆的绘制需要三个步骤
     totalStep: 3,
     needDefaultPointFigure: true,
-    // needDefaultXAxisFigure: true,
-    // needDefaultYAxisFigure: true,
+    needDefaultXAxisFigure: true,
+    needDefaultYAxisFigure: true,
     // 创建点对应的图形信息
     createPointFigures: ({ coordinates }) => {
         if (coordinates.length === 2) {
@@ -49,75 +50,85 @@ const drawRectOverlay = {
 klinecharts.registerOverlay(drawRectOverlay)
 
 
-drawRectOverlay['onRemoved'] = function (event) {
-    console.log('onRemoved', event)
-};
-drawRectOverlay['onDrawEnd'] = function (event) {
-    console.log('onDrawEnd', event)
-};
-drawRectOverlay['onPressedMoveEnd'] = function (event) {
-    console.log('onPressedMoveEnd', event)
-};
-
-
 class AppKlineCharts {
-
-    MA_PANNER_ID = 'candle_pane'
-    OVERLAY_LINE_NAME = 'OVERLAY_LINE_NAME'
 
     constructor(id) {
 
         this.chart = klinecharts.init(id)
         this.chart.setLocale('zh-CN')
-        // this.chart.setBarSpace(50)
-        // this.chart.setStyles({
-        //     // 蜡烛图
-        //     candle: {
-        //         type: 'candle_up_stroke',
-        //         bar: {
-        //             upColor: '#dd2200',
-        //             downColor: '#009933',
-        //             noChangeColor: '#888888'
-        //         }
-        //     },
-        // });
 
-        klinecharts.registerOverlay(drawRectOverlay)
-
+        this.registerOverlay()
         this.setIndicatorMA()
         this.setIndicatorVOL()
         this.setIndicatorMACD()
     }
 
-    data(klines) {
-        this.chart.applyNewData(klines)
+    createOverlay(option, override = false) {
+
+        option['onPressedMoveEnd'] = this.saveOverlay;
+        option['onDrawEnd'] = this.saveOverlay;
+        option['onRemoved'] = this.removeOverlay;
+
+        if (option['points'] !== undefined) {
+            // option.points = option.points.map(function (p) {
+            //     return {timestamp: p.timestamp, value: p.value}
+            // });
+        }
+
+        if (override) {
+            console.log('override', option.points)
+            return this.chart.overrideOverlay(option);
+        }
+
+        console.log('create', option.points)
+        return this.chart.createOverlay(option);
+    }
+
+    saveOverlay(event) {
+        var mark_type;
+        switch (event.overlay.name) {
+            case 'priceLine':
+                mark_type = 'line'
+                break;
+            case 'sampleRect':
+                mark_type = 'rect'
+                break;
+            default:
+                return console.log('save error')
+                break;
+        }
+
+        fetchAddMarks({ code: getUrlQuery('code'), overlay_id: event.overlay.id, option: JSON.stringify(event.overlay), mark_type: mark_type})
+            .then(res => {
+            })
+    }
+
+    removeOverlay(event) {
+        fetchRemoveMarks({ code: getUrlQuery('code'), overlay_id: event.overlay.id})
+            .then(res => {
+                console.log('removeOverlay', res)
+            })
+    }
+
+    // 注册矩形
+    registerOverlay() {
+        klinecharts.registerOverlay(drawRectOverlay)
+    }
+
+    data(data) {
+        this.chart.applyNewData(data)
     }
 
     updateData(data) {
-
-        this.current_bar = [data].map((data) => {
-            return {
-                timestamp: data.timestamp,
-                open: +data.open,
-                high: +data.high,
-                low: +data.low,
-                close: +data.close,
-                volume: Math.ceil(+data.volume),
-                turnover: +data.turnover,
-            }
-        })[0]
-
-        this.chart.updateData(this.current_bar)
+        this.chart.updateData(data)
     }
 
     /**
      * 自定义均线指标
      */
     setIndicatorMA(ma = [70, 250]) {
-        this.chart.removeIndicator(this.MA_PANNER_ID, 'MY_MA')
         this.createIndicatorMA(ma)
     }
-
 
     /**
      * 自定义指标
@@ -152,7 +163,7 @@ class AppKlineCharts {
         })
 
         klinecharts.registerIndicator({
-            name: 'MY_MA',
+            name: 'MA',
             shortName: 'MA',
             series: 'price',
             calcParams: calcParams,
@@ -187,36 +198,9 @@ class AppKlineCharts {
                 });
             }
         });
-        this.chart.createIndicator('MY_MA', false, {
-            id: this.MA_PANNER_ID
+        this.chart.createIndicator('MA', false, {
+            id: 'candle_pane'
         });
-    }
-
-    createPriceLineOverlay(price) {
-        var option = {
-            name: "simpleTag",
-            extendData: price,
-            points: [{
-                value: price
-            }],
-            styles: {
-                line: {
-                    show: true,
-                    style: 'dashed',
-                    dashedValue: [4, 4],
-                    size: 2,
-                }
-            },
-            lock: false
-        };
-        this.chart.createOverlay(option);
-        return option
-    }
-
-
-    createPriceLineOverlayByOption(option) {
-        this.chart.createOverlay(option);
-        return option
     }
 }
 
