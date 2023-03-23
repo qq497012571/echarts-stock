@@ -40,7 +40,7 @@ class XueqiuApi
             'handler' => $stack,
             'timeout' => 5,
             'swoole' => [
-                'timeout' => 10,
+                'timeout' => 5,
                 'socket_buffer_size' => 1024 * 1024 * 2,
             ],
         ]);

@@ -13,14 +13,14 @@
                 <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" key="1m">1分</button>
             </div>
             <div class="layui-btn-group">
+                <button type="button" class="layui-btn layui-btn-primary layui-btn-sm draw-bar" key="draw-alarm-line">
+                    <i class="iconfont icon-naozhong"></i>
+                </button>
                 <button type="button" class="layui-btn layui-btn-primary layui-btn-sm draw-bar" key="draw-line">
                     <i class="layui-icon layui-icon-flag"></i>
                 </button>
                 <button type="button" class="layui-btn layui-btn-primary layui-btn-sm draw-bar" key="draw-rect">
                     <i class="iconfont icon-juxing"></i>
-                </button>
-                <button type="button" class="layui-btn layui-btn-primary layui-btn-sm draw-bar" key="draw-notice-line">
-                    <i class="iconfont icon-tixing"></i>
                 </button>
             </div>
             <div id="kline-charts" style="height: 100%"></div>

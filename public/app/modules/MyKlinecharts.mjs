@@ -1,4 +1,4 @@
-import { fetchAddMarks,fetchRemoveMarks } from "./Api.mjs";
+import { fetchAddMarks, fetchRemoveMarks } from "./Api.mjs";
 import { getUrlQuery } from "./Utils.mjs";
 
 /**
@@ -50,6 +50,44 @@ const drawRectOverlay = {
 klinecharts.registerOverlay(drawRectOverlay)
 
 
+/**
+ * 覆盖物, 画预警线
+ */
+var alarmLine = {
+    name: 'alarm_line',
+    totalStep: 2,
+    needDefaultPointFigure: true,
+    needDefaultXAxisFigure: true,
+    needDefaultYAxisFigure: true,
+    createPointFigures: function (_a) {
+        var coordinates = _a.coordinates, bounding = _a.bounding, precision = _a.precision, overlay = _a.overlay;;
+        var _b = (overlay.points)[0].value, value = _b === void 0 ? 0 : _b;
+
+        var textX  = String('预警: ' + value.toFixed(precision.price)).length * 8
+
+        return [{
+            type: 'line',
+            attrs: {
+                coordinates: [
+                    {
+                        x: 0,
+                        y: coordinates[0].y
+                    }, {
+                        x: bounding.width,
+                        y: coordinates[0].y
+                    }
+                ]
+            }
+        }, {
+            type: 'text',
+            ignoreEvent: true,
+            attrs: { x: bounding.width - textX, y: coordinates[0].y, text: '预警: ' + value.toFixed(precision.price), baseline: 'bottom' }
+        }];
+    }
+};
+
+klinecharts.registerOverlay(alarmLine)
+
 class AppKlineCharts {
 
     constructor(id) {
@@ -70,9 +108,12 @@ class AppKlineCharts {
         option['onRemoved'] = this.removeOverlay;
 
         if (option['points'] !== undefined) {
-            // option.points = option.points.map(function (p) {
-            //     return {timestamp: p.timestamp, value: p.value}
-            // });
+
+            // this.handlePoints(option.points)
+            option.points = option.points.map(function (p) {
+                return {value: p.value}
+                return {timestamp: p.timestamp, value: p.value}
+            });
         }
 
         if (override) {
@@ -93,18 +134,21 @@ class AppKlineCharts {
             case 'sampleRect':
                 mark_type = 'rect'
                 break;
+            case 'alarm_line':
+                mark_type = 'alarm_line'
+                break;
             default:
                 return console.log('save error')
                 break;
         }
 
-        fetchAddMarks({ code: getUrlQuery('code'), overlay_id: event.overlay.id, option: JSON.stringify(event.overlay), mark_type: mark_type})
+        fetchAddMarks({ code: getUrlQuery('code'), overlay_id: event.overlay.id, option: JSON.stringify(event.overlay), mark_type: mark_type })
             .then(res => {
             })
     }
 
     removeOverlay(event) {
-        fetchRemoveMarks({ code: getUrlQuery('code'), overlay_id: event.overlay.id})
+        fetchRemoveMarks({ code: getUrlQuery('code'), overlay_id: event.overlay.id })
             .then(res => {
                 console.log('removeOverlay', res)
             })

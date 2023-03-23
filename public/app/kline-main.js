@@ -31,7 +31,18 @@ $('.draw-bar').on('click', function () {
         case 'draw-rect':
             app.createOverlay({name: 'sampleRect'})
             break;
-        case 'draw-notice-line':
+        case 'draw-alarm-line':
+            var option = {
+                name: 'alarm_line',
+                styles: {
+                    line: {
+                        style: 'dashed',
+                        color: 'red',
+                        dashedValue: [4, 4]
+                    }
+                },
+            };
+            app.createOverlay(option);
             break;
     }
 });
