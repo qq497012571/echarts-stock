@@ -24,11 +24,12 @@
         "hyperf/logger": "~3.0.0",
         "hyperf/memory": "~3.0.0",
         "hyperf/process": "~3.0.0",
-        "hyperf/redis": "~3.0.0",
+        "hyperf/redis": "^3.0",
         "hyperf/session": "^3.0",
         "hyperf/socketio-server": "^3.0",
         "hyperf/view": "^3.0",
-        "hyperf/view-engine": "^3.0"
+        "hyperf/view-engine": "^3.0",
+        "hyperf/websocket-server": "^3.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",

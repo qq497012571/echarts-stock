@@ -9,8 +9,15 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
+
 use Hyperf\HttpServer\Router\Router;
 use App\Middleware\HttpAuthMiddleware;
+
+
+Router::addServer('socket-io', function () {
+    Router::get('/', 'App\Controller\WebSocketController');
+});
+
 
 Router::addRoute(['GET'], '/', 'App\Controller\HomeController@index', ['middleware' => [HttpAuthMiddleware::class]]);
 Router::addRoute(['GET', 'POST'], '/login', 'App\Controller\HomeController@login');

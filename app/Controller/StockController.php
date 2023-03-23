@@ -39,4 +39,13 @@ class StockController extends BaseController
     {
         return $render->render('stock/kline');
     }
+
+    /**
+     * k线展示
+     */
+    public function test(RequestInterface $request, RenderInterface $render, ResponseInterface $response)
+    {
+        return $render->render('stock/test');
+    }
+
 }
