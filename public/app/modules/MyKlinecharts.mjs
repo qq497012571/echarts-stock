@@ -63,7 +63,8 @@ var alarmLine = {
         var coordinates = _a.coordinates, bounding = _a.bounding, precision = _a.precision, overlay = _a.overlay;;
         var _b = (overlay.points)[0].value, value = _b === void 0 ? 0 : _b;
 
-        var textX  = String('预警: ' + value.toFixed(precision.price)).length * 8
+        var textX = String('预警: ' + value.toFixed(precision.price)).length * 8
+        console.log('price', precision)
 
         return [{
             type: 'line',
@@ -79,9 +80,15 @@ var alarmLine = {
                 ]
             }
         }, {
-            type: 'text',
+            type: 'rectText',
             ignoreEvent: true,
-            attrs: { x: bounding.width - textX, y: coordinates[0].y, text: '预警: ' + value.toFixed(precision.price), baseline: 'bottom' }
+            attrs: { x: bounding.width - textX, y: coordinates[0].y, text: '预警: ' + value.toFixed(precision.price), baseline: 'bottom' },
+            styles: {
+                style: 'fill',
+                borderSize: 1,
+                borderStyle: 'solid',
+                borderColor: 'red'
+            }
         }];
     }
 };
@@ -111,8 +118,8 @@ class AppKlineCharts {
 
             // this.handlePoints(option.points)
             option.points = option.points.map(function (p) {
-                return {value: p.value}
-                return {timestamp: p.timestamp, value: p.value}
+                return { value: p.value }
+                return { timestamp: p.timestamp, value: p.value }
             });
         }
 

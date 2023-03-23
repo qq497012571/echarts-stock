@@ -5,7 +5,8 @@
     <div class="layui-inline">
         <input class="layui-input" name="id" id="demoReload" autocomplete="off">
     </div>
-    <button class="layui-btn" data-type="reload">搜索</button>
+    <button class="layui-btn layui-btn-sm" >搜索</button>
+    <button class="layui-btn layui-btn-sm" id="sync-btn">同步雪球</button>
 </div>
 <table id="sotck-table" lay-filter="stock-table"></table>
 
@@ -15,30 +16,12 @@
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">K线图</a>
     <a class="layui-btn layui-btn-xs" lay-event="more">更多 <i class="layui-icon layui-icon-down"></i></a>
 </script>
-
-<script src="https://cdn.bootcdn.net/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-<script>
-    var socket = io('ws://172.20.0.4:9502', {
-        transports: ["websocket"]
-    });
-    socket.on('connect', data => {
-        socket.emit('event', 'hello, hyperf', console.log);
-        socket.emit('join-room', 'room1', console.log);
-        setInterval(function() {
-            socket.emit('say', '{"room":"room1", "message":"Hello Hyperf."}');
-        }, 1000);
-    });
-    socket.on('event', console.log);
-</script>
-
-
-
 <script>
     layui.use('table', function() {
         var table = layui.table;
 
         //第一个实例
-        table.render({
+        var tableObj = table.render({
             elem: '#sotck-table',
             url: '/api/stock/list' //数据接口
                 ,
@@ -61,6 +44,14 @@
                         title: '代码',
                         width: 200
                     }, {
+                        field: 'code',
+                        title: '当前价',
+                        width: 200
+                    }, {
+                        field: 'code',
+                        title: '涨跌幅',
+                        width: 200
+                    }, {
                         fixed: 'right',
                         title: '操作',
                         width: 150,
@@ -69,6 +60,11 @@
                     }
                 ]
             ]
+        });
+
+
+        $('#sync-btn').click(function(){
+            tableObj.reload('stock-table', {where:{"sync_stock": 1}});
         });
 
         // 单元格工具事件

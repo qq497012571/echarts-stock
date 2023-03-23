@@ -80,7 +80,42 @@ class XueqiuApi
     public function getList()
     {
         $url = "/v5/stock/portfolio/stock/list.json?size=1000&category=1";
-        // $this->logger->info($url);
+        $this->logger->info("获取雪球股票列表: ". $url);
+        $response = $this->_client->request('GET', $url, $this->_option);
+        $result = Json::decode($response->getBody()->getContents());
+        return $result;
+    }
+
+
+    /**
+     * 获取最新一条数据详情
+     */
+    public function quote($symbol)
+    {
+        $query = [
+            'symbol' => $symbol,
+            'extend' => 'detail',
+            'is_delay_hk' => false,
+        ];
+        $queryString = http_build_query($query);
+        $url = "/v5/stock/batch/quote.json?" . $queryString;
+        $this->logger->info("获取雪球股票详情: ". $url);
+        $response = $this->_client->request('GET', $url, $this->_option);
+        $result = Json::decode($response->getBody()->getContents());
+        return $result;
+    }
+
+    /**
+     * 删除自选股
+     */
+    public function cancel($symbol)
+    {
+        $query = [
+            'symbol' => $symbol,
+        ];
+        $queryString = http_build_query($query);
+        $url = "/v5/stock/portfolio/stock/cancel.json?" . $queryString;
+        $this->logger->info("获取雪球股票详情: ". $url);
         $response = $this->_client->request('GET', $url, $this->_option);
         $result = Json::decode($response->getBody()->getContents());
         return $result;

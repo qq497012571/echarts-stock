@@ -52,22 +52,24 @@ class StockService
     /**
      * 获取自选列表
      */
-    public function list($page, $pagesize)
+    public function list($page, $pagesize, $syncStock = 0)
     {
         $user = $this->session->get('user');
-
         $xueqiuApi = new XueqiuApi($user['xueqiu_cookie']);
-        $result = $xueqiuApi->getList();
-        if (isset($result['data']['stocks'])) {
-            foreach ($result['data']['stocks'] as $stock) {
-                $userStock = UserStock::query()->where('user_id', $user['id'])->where('code' , $stock['symbol'])->first();
-                if (!$userStock) {
-                    $userStock = new UserStock();
-                    $userStock->user_id = $user['id'];
-                    $userStock->code = $stock['symbol'];
-                    $userStock->name = $stock['name'];
-                    $userStock->created_at = $stock['created'] / 1000;
-                    $userStock->save();
+
+        if ($syncStock) {
+            $result = $xueqiuApi->getList();
+            if (isset($result['data']['stocks'])) {
+                foreach ($result['data']['stocks'] as $stock) {
+                    $userStock = UserStock::query()->where('user_id', $user['id'])->where('code' , $stock['symbol'])->first();
+                    if (!$userStock) {
+                        $userStock = new UserStock();
+                        $userStock->user_id = $user['id'];
+                        $userStock->code = $stock['symbol'];
+                        $userStock->name = $stock['name'];
+                        $userStock->created_at = $stock['created'] / 1000;
+                        $userStock->save();
+                    }
                 }
             }
         }
@@ -75,6 +77,10 @@ class StockService
         $userQuery = UserStock::query()->where('user_id', $user['id']);
         $count = $userQuery->count();
         $list = $userQuery->offset(($page-1) * $pagesize)->limit($pagesize)->orderBy('created_at', 'desc')->get();
+        if (count($list)) {
+            $xueqiuApi->quote(implode(',', array_column($list, 'code')));
+        }
+
 
         return [$list, $count];
     }

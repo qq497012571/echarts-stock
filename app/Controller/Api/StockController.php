@@ -53,7 +53,7 @@ class StockController extends BaseController
      */
     public function list(RequestInterface $request)
     {
-        list($data, $count)  = $this->stockService->list($request->query('page', 1), $request->query('limit', 20));
+        list($data, $count)  = $this->stockService->list($request->query('page', 1), $request->query('limit', 20), $request->query('sync_stock', 20));
         return $this->outputJson($data, $count);
     }
 
@@ -76,9 +76,6 @@ class StockController extends BaseController
     {
         $this->stockService->removeMark($request->input('code'), $request->input('overlay_id'));
         return $this->outputJson([]);
-
-        // if ($request->getMethod() == 'POST') {
-        // }
     }
 
 }
