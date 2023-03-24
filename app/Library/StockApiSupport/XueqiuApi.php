@@ -41,7 +41,7 @@ class XueqiuApi
     public function __construct($sessionId, $token = '')
     {
         $stack = $this->stackFactory->create();
-        $this->_jar = new SessionCookieJar($sessionId, false);
+        $this->_jar = new SessionCookieJar($sessionId, true);
 
         $this->_client = new Client([
             'handler' => $stack,
