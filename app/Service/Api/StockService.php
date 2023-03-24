@@ -9,16 +9,19 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
+
 namespace App\Service\Api;
 
 use App\Exception\ServiceException;
 use App\Library\StockApiSupport\XueqiuApi;
+use App\Library\Utils\ArrayHelper;
 use App\Model\StockMark;
 use App\Model\User;
 use App\Model\UserStock;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\HandlerStackFactory;
 use Hyperf\Contract\SessionInterface;
+use Hyperf\Utils\Codec\Json;
 
 class StockService
 {
@@ -43,8 +46,7 @@ class StockService
     public function get($code, $ma, $limit, $timestamp)
     {
         $user = $this->session->get('user');
-        $user = User::query()->where('id', $user['id'])->first();
-        $xueqiuApi = new XueqiuApi($user['xueqiu_cookie']);
+        $xueqiuApi = new XueqiuApi($user['token'], $user['xueqiu_cookie']);
         $klines = $xueqiuApi->getKline($code, $ma, $limit, $timestamp);
         return $klines;
     }
@@ -55,13 +57,13 @@ class StockService
     public function list($page, $pagesize, $syncStock = 0)
     {
         $user = $this->session->get('user');
-        $xueqiuApi = new XueqiuApi($user['xueqiu_cookie']);
+        $xueqiuApi = new XueqiuApi($user['token'], $user['xueqiu_cookie']);
 
         if ($syncStock) {
             $result = $xueqiuApi->getList();
             if (isset($result['data']['stocks'])) {
                 foreach ($result['data']['stocks'] as $stock) {
-                    $userStock = UserStock::query()->where('user_id', $user['id'])->where('code' , $stock['symbol'])->first();
+                    $userStock = UserStock::query()->where('user_id', $user['id'])->where('code', $stock['symbol'])->first();
                     if (!$userStock) {
                         $userStock = new UserStock();
                         $userStock->user_id = $user['id'];
@@ -76,9 +78,24 @@ class StockService
 
         $userQuery = UserStock::query()->where('user_id', $user['id']);
         $count = $userQuery->count();
-        $list = $userQuery->offset(($page-1) * $pagesize)->limit($pagesize)->orderBy('created_at', 'desc')->get();
+        $list = $userQuery->offset(($page - 1) * $pagesize)->limit($pagesize)->orderBy('created_at', 'desc')->get();
+
         if (count($list)) {
-            $xueqiuApi->quote(implode(',', array_column($list, 'code')));
+            $result = $xueqiuApi->quote(implode(',', ArrayHelper::array_column($list, 'code')));
+
+            $resultMap = [];
+            foreach ($result['data']['items'] as $res) {
+                if (isset($res['quote']['symbol'])) {
+                    $resultMap[$res['quote']['symbol']] = $res['quote'];
+                }
+            }
+
+            foreach ($list as &$v) {
+                $v->current = $resultMap[$v['code']]['current'] ?? '';
+                $v->percent = $resultMap[$v['code']]['percent'] ?? '';
+                $v->chg = $resultMap[$v['code']]['chg'] ?? '';
+            }
+
         }
 
 
@@ -91,9 +108,24 @@ class StockService
      */
     public function add($code)
     {
-        
+
     }
 
+    /**
+     * 删除自选股票
+     * @param $code
+     */
+    public function cancel($code)
+    {
+        $user = $this->session->get('user');
+        $userStock = UserStock::query()->where('code', $code)->where('user_id', $user['id'])->first();
+        $userStock->delete();
+        if ($user['xueqiu_cookie']) {
+            $xueqiuApi = new XueqiuApi($user['token'], $user['xueqiu_cookie']);
+            $result = $xueqiuApi->cancel($code);
+            var_dump($result);
+        }
+    }
 
     /**
      * 搜索股票
@@ -101,7 +133,6 @@ class StockService
      */
     public function serach($word)
     {
-
     }
 
 
@@ -142,6 +173,12 @@ class StockService
     }
 
 
-   
+    /**
+     * 添加预警
+     */
+    public function addAlarm()
+    {
 
+    }
+    
 }

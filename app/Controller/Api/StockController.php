@@ -32,7 +32,6 @@ class StockController extends BaseController
     #[Inject()]
     public $stockService;
 
-
     /**
      * 获取k线
      * @param RequestInterface $request
@@ -48,21 +47,11 @@ class StockController extends BaseController
         return $this->outputJson($data);
     }
 
-    /**
-     * 获取自选列表
-     */
-    public function list(RequestInterface $request)
-    {
-        list($data, $count)  = $this->stockService->list($request->query('page', 1), $request->query('limit', 20), $request->query('sync_stock', 20));
-        return $this->outputJson($data, $count);
-    }
-
     public function marks(RequestInterface $request)
     {
         $data = $this->stockService->marks($request->query('code'));
         return $this->outputJson($data);
     }
-
 
     public function addMark(RequestInterface $request)
     {
@@ -72,6 +61,10 @@ class StockController extends BaseController
         }
     }
 
+    /**
+     * 删除overlay
+     * @param RequestInterface $request
+     */
     public function removeMark(RequestInterface $request)
     {
         $this->stockService->removeMark($request->input('code'), $request->input('overlay_id'));

@@ -4,10 +4,12 @@ namespace App\Library\StockApiSupport;
 
 use App\Log;
 use GuzzleHttp\Client;
-use Hyperf\Contract\StdoutLoggerInterface;
+use Hyperf\Utils\Codec\Json;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\HandlerStackFactory;
-use Hyperf\Utils\Codec\Json;
+use GuzzleHttp\Cookie\SessionCookieJar;
+use Hyperf\Contract\StdoutLoggerInterface;
+
 class XueqiuApi
 {
 
@@ -16,7 +18,6 @@ class XueqiuApi
      */
     #[Inject()]
     public $stackFactory;
-
 
     /**
      * @var StdoutLoggerInterface
@@ -31,27 +32,50 @@ class XueqiuApi
     private $_option;
 
 
-    public function __construct($userCookie)
+    private $_jar;
+
+    public const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36';
+    public const USER_TOKEN = 'xq_a_token';
+
+
+    public function __construct($sessionId, $token = '')
     {
         $stack = $this->stackFactory->create();
+        $this->_jar = new SessionCookieJar($sessionId, false);
 
         $this->_client = new Client([
-            'base_uri' => "https://stock.xueqiu.com",
             'handler' => $stack,
             'timeout' => 5,
             'swoole' => [
                 'timeout' => 5,
                 'socket_buffer_size' => 1024 * 1024 * 2,
             ],
+            'cookies' => $this->_jar,
         ]);
 
         $this->_option = [
             'headers' => [
-                'authority' => 'stock.xueqiu.com',
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
-                'cookie' => $userCookie,
+                'User-Agent' => self::USER_AGENT,
             ]
         ];
+
+
+        if (!$this->_jar->getCookieByName(self::USER_TOKEN)) {
+            $this->_client->get('https://xueqiu.com/', $this->_option);
+        }
+
+
+        if ($token) {
+
+            $userCookie = new \GuzzleHttp\Cookie\SetCookie([
+                'Name' => self::USER_TOKEN,
+                'Value' => $token,
+                'Domain' => '.xueqiu.com',
+                'Path' => '/',
+            ]);
+
+            $this->_jar->setcookie($userCookie);
+        }
     }
 
     public function handleQueryParams($code, $ma, $limit)
@@ -60,12 +84,12 @@ class XueqiuApi
     }
 
     public function getKline($code, $ma, $limit, $begin = null)
-    {   
+    {
         if (!$begin) {
             $begin = time() . '000';
         }
 
-        $url = "/v5/stock/chart/kline.json?symbol=$code&begin=$begin&period=$ma&count=-$limit";
+        $url = "https://stock.xueqiu.com/v5/stock/chart/kline.json?symbol=$code&begin=$begin&period=$ma&count=-$limit";
         $this->logger->info($url);
         $response = $this->_client->request('GET', $url, $this->_option);
         $result = $response->getBody()->getContents();
@@ -79,13 +103,12 @@ class XueqiuApi
      */
     public function getList()
     {
-        $url = "/v5/stock/portfolio/stock/list.json?size=1000&category=1";
-        $this->logger->info("获取雪球股票列表: ". $url);
+        $url = "https://stock.xueqiu.com/v5/stock/portfolio/stock/list.json?size=1000&category=1";
+        $this->logger->info("获取雪球股票列表: " . $url);
         $response = $this->_client->request('GET', $url, $this->_option);
         $result = Json::decode($response->getBody()->getContents());
         return $result;
     }
-
 
     /**
      * 获取最新一条数据详情
@@ -98,8 +121,8 @@ class XueqiuApi
             'is_delay_hk' => false,
         ];
         $queryString = http_build_query($query);
-        $url = "/v5/stock/batch/quote.json?" . $queryString;
-        $this->logger->info("获取雪球股票详情: ". $url);
+        $url = "https://stock.xueqiu.com/v5/stock/batch/quote.json?" . $queryString;
+        $this->logger->info("获取雪球股票详情: " . $url);
         $response = $this->_client->request('GET', $url, $this->_option);
         $result = Json::decode($response->getBody()->getContents());
         return $result;
@@ -110,14 +133,13 @@ class XueqiuApi
      */
     public function cancel($symbol)
     {
-        $query = [
-            'symbol' => $symbol,
+        $url = "https://stock.xueqiu.com/v5/stock/portfolio/stock/cancel.json";
+        $this->_option['form_params'] = [
+            'symbols' => $symbol,
         ];
-        $queryString = http_build_query($query);
-        $url = "/v5/stock/portfolio/stock/cancel.json?" . $queryString;
-        $this->logger->info("获取雪球股票详情: ". $url);
-        $response = $this->_client->request('GET', $url, $this->_option);
+        $response = $this->_client->request('POST', $url, $this->_option);
         $result = Json::decode($response->getBody()->getContents());
+        $this->logger->info(sprintf("雪球股票删除: %s %s", $result['error_code'], $result['error_description']));
         return $result;
     }
 
