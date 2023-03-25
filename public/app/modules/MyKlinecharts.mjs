@@ -53,7 +53,13 @@ var alarmLine = {
     createPointFigures: function (_a) {
         var coordinates = _a.coordinates, bounding = _a.bounding, precision = _a.precision, overlay = _a.overlay;
         var _b = (overlay.points)[0].value, value = _b === void 0 ? 0 : _b;
-        var textX = String('预警: ' + value.toFixed(precision.price)).length * 8;
+        //【(成本价-现价)÷成本价】×100%=涨跌幅度
+        var newPrice = overlay.extendData;
+        var drawPrice = value.toFixed(precision.price);
+        var rate = ((drawPrice - newPrice) / drawPrice * 100).toFixed(2);
+        var text = '预警: ' + value.toFixed(precision.price) + ' (' + rate + '%)'
+        var textX = text.length * 7;
+
         return [{
             type: 'line',
             attrs: {
@@ -66,16 +72,22 @@ var alarmLine = {
                         y: coordinates[0].y
                     }
                 ]
+            },
+            styles: {
+                style: 'dashed',
+                color: '#e07203',
+                dashedValue: [4,2],
             }
         }, {
             type: 'rectText',
             ignoreEvent: true,
-            attrs: { x: bounding.width - textX, y: coordinates[0].y, text: '预警: ' + value.toFixed(precision.price), baseline: 'bottom' },
+            attrs: { x: bounding.width - textX, y: coordinates[0].y, text: text, baseline: 'bottom' },
             styles: {
                 style: 'fill',
+                color: '#bcbec6',
                 borderSize: 1,
                 borderStyle: 'solid',
-                borderColor: 'red'
+                backgroundColor: '#1e222d',
             }
         }];
     }
@@ -89,7 +101,11 @@ class AppKlineCharts {
 
         this.chart = klinecharts.init(id)
         this.chart.setLocale('zh-CN')
-
+        this.chart.setStyles({
+            grid: {
+                show: false,
+            },
+        })
         this.registerOverlay()
         this.setIndicatorMA()
         this.setIndicatorVOL()

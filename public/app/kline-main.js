@@ -15,8 +15,6 @@ registerOverlayKeyup();
 loadCharts(code, currentMa)
 
 
-
-
 app.chart.loadMore((timestamp) => {
     fetchKlines(code, currentMa, 142, timestamp).done(function (res) {
         var hasMore = true
@@ -28,8 +26,6 @@ app.chart.loadMore((timestamp) => {
             hasMore
         );
     });
-
-
 })
 
 
@@ -52,8 +48,10 @@ $('.draw-bar').on('click', function () {
             app.createOverlay({name: 'sampleRect'})
             break;
         case 'draw-alarm-line':
+            var data = app.chart.getDataList();
             var option = {
                 name: 'alarm_line',
+                extendData: data[data.length-1]['close'],
                 styles: {
                     line: {
                         style: 'dashed',

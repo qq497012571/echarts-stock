@@ -16,14 +16,14 @@
                 <button type="button" class="layui-btn layui-btn-primary layui-btn-sm draw-bar" key="draw-alarm-line">
                     <i class="iconfont icon-naozhong"></i>
                 </button>
-                <button type="button" class="layui-btn layui-btn-primary layui-btn-sm draw-bar" key="draw-line">
+                <!-- <button type="button" class="layui-btn layui-btn-primary layui-btn-sm draw-bar" key="draw-line">
                     <i class="layui-icon layui-icon-flag"></i>
                 </button>
                 <button type="button" class="layui-btn layui-btn-primary layui-btn-sm draw-bar" key="draw-rect">
-                    <i class="iconfont icon-juxing"></i>
+                    <i class="iconfont icon-juxing"></i> -->
                 </button>
             </div>
-            <div id="kline-charts" style="height: 90%"></div>
+            <div id="kline-charts" style="height: 90%;background-color: #161a25; max-width:1500px"></div>
         </div>
     </div>
 </div>
