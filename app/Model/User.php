@@ -8,9 +8,10 @@ use Hyperf\DbConnection\Model\Model;
 
 /**
  * @property int $id 
- * @property string $token 
+ * @property string $email 
  * @property string $name 
  * @property string $xueqiu_cookie 
+ * @property string $xueqiu_result 
  * @property \Carbon\Carbon $created_at 
  * @property \Carbon\Carbon $updated_at 
  */

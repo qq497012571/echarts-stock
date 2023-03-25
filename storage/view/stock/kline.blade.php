@@ -23,12 +23,10 @@
                     <i class="iconfont icon-juxing"></i>
                 </button>
             </div>
-            <div id="kline-charts" style="height: 100%"></div>
+            <div id="kline-charts" style="height: 90%"></div>
         </div>
     </div>
 </div>
-
-
 
 
 @section('script')

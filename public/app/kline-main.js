@@ -11,7 +11,27 @@ var first = true;
 
 registerOverlayKeyup();
 
-app.chart.resize();
+
+loadCharts(code, currentMa)
+
+
+
+
+app.chart.loadMore((timestamp) => {
+    fetchKlines(code, currentMa, 142, timestamp).done(function (res) {
+        var hasMore = true
+        if (res.data.length != 142) {
+            hasMore = false
+        }
+        res.data.length && app.chart.applyMoreData(
+            res.data,
+            hasMore
+        );
+    });
+
+
+})
+
 
 $('.draw-bar').on('click', function () {
     switch ($(this).attr('key')) {
@@ -47,20 +67,6 @@ $('.draw-bar').on('click', function () {
     }
 });
 
-loadCharts(code, currentMa)
-
-app.chart.loadMore((timestamp) => {
-    fetchKlines(code, currentMa, 142, timestamp).done(function (res) {
-        var hasMore = true
-        if (res.data.length != 142) {
-            hasMore = false
-        }
-        res.data.length && app.chart.applyMoreData(
-            res.data,
-            hasMore
-        );
-    });
-})
 
 $('.ma-bars-box button').on('click', function () {
     var ma = $(this).attr('key');
@@ -97,6 +103,8 @@ function loadCharts(code, ma) {
             app.createOverlay(JSON.parse(m.option), !first)
         });
         first = false;
+        app.chart.resize();
+        console.log('resize')
     });
 
 }

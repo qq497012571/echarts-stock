@@ -35,7 +35,7 @@
                 <li class="layui-nav-item layui-hide layui-show-md-inline-block">
                     <a href="javascript:;">
                         <img src="//tva1.sinaimg.cn/crop.0.0.118.118.180/5db11ff4gw1e77d3nqrv8j203b03cweg.jpg" class="layui-nav-img">
-                        tester
+                        {{$user['name']}}
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a href="/logout">登出</a></dd>
@@ -60,7 +60,7 @@
                             <dd><a href="/stock/list" target="body">我的自选</a></dd>
                             <dd><a href="javascript:;">模拟炒股</a></dd>
                             <dd><a href="javascript:;">炒股练习</a></dd>
-                            <dd><a href="javascript:;">策略选股</a></dd>
+                            <dd><a href="/home/profile" target="body">账号配置</a></dd>
                         </dl>
                     </li>
                 </ul>
@@ -71,35 +71,17 @@
         </div>
     </div>
     <script type="text/javascript" src="/layui/layui.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script>
-        //JS 
-        // layui.use(['element', 'layer', 'util'], function() {
-        //     var element = layui.element,
-        //         layer = layui.layer,
-        //         util = layui.util,
-        //         $ = layui.$;
-
-        //     //头部事件
-        //     util.event('lay-header-event', {
-        //         //左侧菜单事件
-        //         menuLeft: function(othis) {
-        //             layer.msg('展开左侧菜单的操作', {
-        //                 icon: 0
-        //             });
-        //         },
-        //         menuRight: function() {
-        //             layer.open({
-        //                 type: 1,
-        //                 content: '<div style="padding: 15px;">处理右侧面板的操作</div>',
-        //                 area: ['260px', '100%'],
-        //                 offset: 'rt' //右上角
-        //                     ,
-        //                 anim: 5,
-        //                 shadeClose: true
-        //             });
-        //         }
-        //     });
-        // });
+        var socket = io('ws://localhost:9502', {
+            transports: ["websocket"]
+        });
+        socket.on('connect', data => {
+            var user_id = '{{$user["id"]}}'
+            console.log('user_id', user_id)
+            socket.emit('join-room', user_id, console.log);
+        });
+        socket.on('alarm', console.log);
     </script>
 </body>
 

@@ -40,11 +40,10 @@ class StockController extends BaseController
         return $render->render('stock/kline');
     }
 
-    /**
-     * k线展示
-     */
-    public function test(RequestInterface $request, RenderInterface $render, ResponseInterface $response)
+    #[Middlewares([HttpAuthMiddleware::class])]
+    public function search(RenderInterface $render)
     {
-        return $render->render('stock/test');
+        return $render->render('stock/search');
     }
+    
 }

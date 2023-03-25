@@ -71,4 +71,14 @@ class StockController extends BaseController
         return $this->outputJson([]);
     }
 
+
+    /**
+     * 搜索股票
+     * @param RequestInterface $request
+     */
+    public function search(RequestInterface $request)
+    {
+        return $this->outputJson($this->stockService->search($request->input('code')));
+    }
+
 }

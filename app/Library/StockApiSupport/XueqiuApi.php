@@ -29,52 +29,58 @@ class XueqiuApi
      * @var Client
      */
     private $_client;
+    private $_client_option;
     private $_option;
-
 
     private $_jar;
 
     public const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36';
-    public const USER_TOKEN = 'xq_a_token';
 
 
-    public function __construct($sessionId, $token = '')
+    public function __construct($sessionId, $cookie = '')
     {
-        $stack = $this->stackFactory->create();
-        $this->_jar = new SessionCookieJar($sessionId, true);
 
-        $this->_client = new Client([
-            'handler' => $stack,
+        $this->_client_option = [
+            'handler' => $this->stackFactory->create(),
             'timeout' => 5,
             'swoole' => [
                 'timeout' => 5,
                 'socket_buffer_size' => 1024 * 1024 * 2,
             ],
-            'cookies' => $this->_jar,
-        ]);
-
-        $this->_option = [
-            'headers' => [
-                'User-Agent' => self::USER_AGENT,
-            ]
         ];
 
-
-        if (!$this->_jar->getCookieByName(self::USER_TOKEN)) {
-            $this->_client->get('https://xueqiu.com/', $this->_option);
+        if (!$cookie) {
+            $this->_jar = new SessionCookieJar($sessionId, true);
+            $this->_client_option['cookies'] = $this->_jar;
+            $this->_option = [
+                'headers' => [
+                    'user-agent' => self::USER_AGENT,
+                ]
+            ];
+        } else {
+            $this->_option = [
+                'headers' => [
+                    'user-agent' => self::USER_AGENT,
+                    'cookie' => $cookie,
+                ]
+            ];
         }
 
 
-        if ($token) {
+        $this->_client = new Client($this->_client_option);
 
-            $userCookie = new \GuzzleHttp\Cookie\SetCookie([
-                'Name' => self::USER_TOKEN,
-                'Value' => $token,
+        if (!$cookie) {
+            // 伪造设备id device_id
+            $cookie = new \GuzzleHttp\Cookie\SetCookie([
+                'Name' => 'device_id',
+                'Value' => md5($sessionId),
                 'Domain' => '.xueqiu.com',
                 'Path' => '/',
             ]);
+            $this->_jar->setcookie($cookie);
 
-            $this->_jar->setcookie($userCookie);
+            // 请求一下, 保存session
+            $this->_client->get('https://xueqiu.com/', $this->_option);
         }
     }
 
@@ -129,6 +135,22 @@ class XueqiuApi
     }
 
     /**
+     * 新增自选股
+     */
+    public function add($symbol)
+    {
+        $url = "https://stock.xueqiu.com/v5/stock/portfolio/stock/add.json";
+        $this->_option['form_params'] = [
+            'symbols' => $symbol,
+            'category' => 1,
+        ];
+        $response = $this->_client->request('POST', $url, $this->_option);
+        $result = Json::decode($response->getBody()->getContents());
+        $this->logger->info("雪球股票-新增: " . json_encode($result));
+        return $result;
+    }
+
+    /**
      * 删除自选股
      */
     public function cancel($symbol)
@@ -139,7 +161,55 @@ class XueqiuApi
         ];
         $response = $this->_client->request('POST', $url, $this->_option);
         $result = Json::decode($response->getBody()->getContents());
-        $this->logger->info(sprintf("雪球股票删除: %s %s", $result['error_code'], $result['error_description']));
+        $this->logger->info("雪球股票删除: " . json_encode($result));
+        return $result;
+    }
+
+    /**
+     * 创建登录二维码
+     */
+    public function generateQrCode()
+    {
+        $this->logger->info('generateQrCode cookie: ' . json_encode($this->_jar->toArray()));
+        $url = "https://xueqiu.com/snb/provider/generate-qr-code";
+        $response = $this->_client->request('POST', $url, $this->_option);
+        $result = Json::decode($response->getBody()->getContents());
+        $this->logger->info("雪球登录二维码: " . json_encode($result));
+        return $result;
+    }
+
+    /**
+     * serach搜索
+     */
+    public function search($code, $size = 10)
+    {
+        $this->logger->info('generateQrCode cookie: ' . json_encode($this->_jar->toArray()));
+        $url = "https://xueqiu.com/query/v1/search/stock.json?code=$code&size=$size";
+        $response = $this->_client->request('GET', $url, $this->_option);
+        $result = Json::decode($response->getBody()->getContents());
+        $this->logger->info("雪球搜索: " . json_encode($result));
+        return $result;
+    }
+
+
+    public function cookieToString()
+    {
+        $result = [];
+        foreach ($this->_jar->toArray() as $cookie) {
+            $result[] = $cookie['Name'] . "=" . $cookie['Value'];
+        }
+        return implode(';', $result);
+    }
+
+    /**
+     * 创建登录检查二维码登录状态
+     */
+    public function queryQrCodeState($code)
+    {
+        $url = "https://xueqiu.com/snb/provider/query-qr-code-state?code=$code";
+        $response = $this->_client->request('GET', $url, $this->_option);
+        $result = Json::decode($response->getBody()->getContents());
+        $this->logger->info("雪球登录二维码状态: " . json_encode($result));
         return $result;
     }
 

@@ -1,4 +1,4 @@
-import { fetchCancelUserStock} from "./modules/Api.mjs";
+import { fetchCancelUserStock } from "./modules/Api.mjs";
 
 
 
@@ -7,6 +7,7 @@ layui.use('table', function () {
 
     //第一个实例
     var tableObj = table.render({
+        id: 'sotck-table',
         elem: '#sotck-table',
         url: '/api/user_stock/list',
         page: true,
@@ -48,9 +49,18 @@ layui.use('table', function () {
         ]
     });
 
+    $('#add-btn').click(function () {
+        layer.open({
+            type: 2,
+            area: ['380px', '430px'],
+            skin: 'layui-layer-rim', 
+            content: '/stock/search'
+        });
+    });
 
     $('#sync-btn').click(function () {
-        tableObj.reloadData('stock-table', {
+        tableObj.reload({
+            id: 'stock-table',
             where: {
                 "sync_stock": 1
             }

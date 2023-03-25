@@ -15,10 +15,8 @@ const drawRectOverlay = {
         if (coordinates.length === 2) {
             const width = Math.abs(coordinates[0].x - coordinates[1].x)
             const height = Math.abs(coordinates[0].y - coordinates[1].y)
-
             const x = coordinates[0].x < coordinates[1].x ? coordinates[0].x : coordinates[1].x
             const y = coordinates[0].y < coordinates[1].y ? coordinates[0].y : coordinates[1].y
-
             // 图表内置了基础图形'circle'，可以直接使用
             return {
                 key: 'sampleRect',
@@ -34,16 +32,9 @@ const drawRectOverlay = {
                     borderSize: 0.5
                 }
             };
-
         }
         return []
     },
-    // 绘制结束回调事件，可缺省
-    // onDrawEnd?: (event: OverlayEvent) => boolean,
-    // 按住拖动结束回调事件，可缺省
-    // onPressedMoveEnd: (event: OverlayEvent) => boolean,
-    // 删除回调事件，可缺省
-    // onRemoved?: (event: OverlayEvent) => boolean,
 };
 
 
@@ -60,12 +51,9 @@ var alarmLine = {
     needDefaultXAxisFigure: true,
     needDefaultYAxisFigure: true,
     createPointFigures: function (_a) {
-        var coordinates = _a.coordinates, bounding = _a.bounding, precision = _a.precision, overlay = _a.overlay;;
+        var coordinates = _a.coordinates, bounding = _a.bounding, precision = _a.precision, overlay = _a.overlay;
         var _b = (overlay.points)[0].value, value = _b === void 0 ? 0 : _b;
-
-        var textX = String('预警: ' + value.toFixed(precision.price)).length * 8
-        console.log('price', precision)
-
+        var textX = String('预警: ' + value.toFixed(precision.price)).length * 8;
         return [{
             type: 'line',
             attrs: {
@@ -124,11 +112,8 @@ class AppKlineCharts {
         }
 
         if (override) {
-            console.log('override', option.points)
             return this.chart.overrideOverlay(option);
         }
-
-        console.log('create', option.points)
         return this.chart.createOverlay(option);
     }
 

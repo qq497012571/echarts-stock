@@ -36,18 +36,19 @@ class UserService
 
     /**
      * 用户登录
-     * @param $token
+     * @param $email 邮箱
      */
-    public function login($token)
+    public function login($email)
     {   
-        $user = User::query()->where('token', $token)->first();
+        $user = User::query()->where('email', $email)->first();
         if (!$user) {
-            throw new ServiceException("用户不存在", 500);
+            $user = new User();
+            $user->email = $email;
+            $user->name = $email;
+            $user->save();
         }
-
         $this->session->set('user', $user->toArray());
     }
-
 
     /**
      * 用户退出
