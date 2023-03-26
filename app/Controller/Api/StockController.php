@@ -56,10 +56,19 @@ class StockController extends BaseController
     public function addMark(RequestInterface $request)
     {
         if ($request->getMethod() == 'POST') {
-            $this->stockService->addMark($request->input('code'), $request->input('overlay_id'), $request->input('option'), $request->input('mark_type'));
+            $this->stockService->addMark($request->input('code'), $request->input('overlay_id'), $request->input('option'), $request->input('mark_type'), $request->input('alarm_form', '{}'));
             return $this->outputJson([]);
         }
     }
+
+    public function saveAlarm(RequestInterface $request)
+    {
+        if ($request->getMethod() == 'POST') {
+            $this->stockService->saveAlarm($request->inputs(['timing_type', 'price', 'time_type', 'expire_time', 'title', 'remark', 'overlay_id']));
+            return $this->outputJson([]);
+        }
+    }
+
 
     /**
      * 删除overlay

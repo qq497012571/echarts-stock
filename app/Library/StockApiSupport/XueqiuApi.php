@@ -54,11 +54,13 @@ class XueqiuApi
             $this->_client_option['cookies'] = $this->_jar;
             $this->_option = [
                 'headers' => [
+                    'timeout' => 1.5,
                     'user-agent' => self::USER_AGENT,
                 ]
             ];
         } else {
             $this->_option = [
+                'timeout' => 1.5,
                 'headers' => [
                     'user-agent' => self::USER_AGENT,
                     'cookie' => $cookie,

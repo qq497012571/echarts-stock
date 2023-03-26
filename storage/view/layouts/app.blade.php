@@ -11,7 +11,6 @@
 <body>
     <div class="layui-layout layui-layout-admin">
         <div class="layui-header">
-            <div class="layui-logo layui-hide-xs layui-bg-black">layout demo</div>
             <!-- 头部区域（可配合layui 已有的水平导航） -->
             <ul class="layui-nav layui-layout-left">
                 <!-- 移动端显示 -->
@@ -58,8 +57,8 @@
                         <a class="" href="javascript:;">个人</a>
                         <dl class="layui-nav-child">
                             <dd><a href="/stock/list" target="body">我的自选</a></dd>
+                            <dd><a href="/stock/alarm" target="body">我的警报</a></dd>
                             <dd><a href="javascript:;">模拟炒股</a></dd>
-                            <dd><a href="javascript:;">炒股练习</a></dd>
                             <dd><a href="/home/profile" target="body">账号配置</a></dd>
                         </dl>
                     </li>
@@ -81,7 +80,9 @@
             console.log('user_id', user_id)
             socket.emit('join-room', user_id, console.log);
         });
-        socket.on('alarm', console.log);
+        socket.on('alarm', data => {
+            layer.msg(data)
+        });
     </script>
 </body>
 

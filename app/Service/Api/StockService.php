@@ -141,7 +141,7 @@ class StockService
     /**
      * 新增标记
      */
-    public function addMark($code, $overlayId, $option, $markType)
+    public function addMark($code, $overlayId, $option, $markType, $alarmForm)
     {
         $user = $this->session->get('user');
         $stockMark = StockMark::query()->where('code', $code)->where('user_id', $user['id'])->where('overlay_id', $overlayId)->first();
@@ -157,7 +157,7 @@ class StockService
 
         if ($markType == 'alarm_line') {
 
-            $jsonOption = json_decode($option, true);
+            $alarmForm = json_decode($alarmForm, true);
 
             if ($stockMark->alarm_id) {
                 $stockAlarm = StockAlarm::query()->where('id', $stockMark->alarm_id)->first();
@@ -167,17 +167,34 @@ class StockService
             
             $stockAlarm->user_id = $user['id'];
             $stockAlarm->code = $code;
-            $stockAlarm->price = $jsonOption['points'][0]['value'];
-            $stockAlarm->status = 0;
-            $stockAlarm->timing_type = 1;
+            $stockAlarm->price = $alarmForm['price'];
+            $stockAlarm->timing_type = $alarmForm['timing_type'];
             $stockAlarm->time_type = 1;
+            $stockAlarm->status = 0;
             $stockAlarm->expire_time = time() + 25200; // 默认七天后过期
             $stockAlarm->push_channel = 'web'; // 默认七天后过期
+            $stockAlarm->remark = $alarmForm['remark'];
             $stockAlarm->save();
 
             $stockMark->alarm_id = $stockAlarm->id;
         }
         $stockMark->save();
+    }
+
+    public function saveAlarm($data)
+    {
+        $user = $this->session->get('user');
+        $stockMark = StockMark::query()->where('user_id', $user['id'])->where('overlay_id', $data['overlay_id'])->first();
+        $alarm = StockAlarm::query()->where('id', $stockMark->alarm_id)->first();
+        if ($alarm) {
+            $alarm->timing_type = $data['timing_type'];
+            $alarm->price = $data['price'];
+            $alarm->time_type = $data['time_type'];
+            $alarm->title = $data['title'];
+            $alarm->remark = $data['remark'];
+            $alarm->expire_time = strtotime($data['expire_time']);
+            $alarm->save();
+        }
     }
 
     /**

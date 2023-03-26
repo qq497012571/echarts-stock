@@ -40,7 +40,6 @@ const drawRectOverlay = {
 
 klinecharts.registerOverlay(drawRectOverlay)
 
-
 /**
  * 覆盖物, 画预警线
  */
@@ -54,7 +53,7 @@ var alarmLine = {
         var coordinates = _a.coordinates, bounding = _a.bounding, precision = _a.precision, overlay = _a.overlay;
         var _b = (overlay.points)[0].value, value = _b === void 0 ? 0 : _b;
         //【(成本价-现价)÷成本价】×100%=涨跌幅度
-        var newPrice = overlay.extendData;
+        var newPrice = overlay.extendData.newbar.close;
         var drawPrice = value.toFixed(precision.price);
         var rate = ((drawPrice - newPrice) / drawPrice * 100).toFixed(2);
         var text = '预警: ' + value.toFixed(precision.price) + ' (' + rate + '%)'
@@ -76,7 +75,7 @@ var alarmLine = {
             styles: {
                 style: 'dashed',
                 color: '#e07203',
-                dashedValue: [4,2],
+                dashedValue: [4, 2],
             }
         }, {
             type: 'rectText',
@@ -106,6 +105,9 @@ class AppKlineCharts {
                 show: false,
             },
         })
+
+
+
         this.registerOverlay()
         this.setIndicatorMA()
         this.setIndicatorVOL()
@@ -119,38 +121,49 @@ class AppKlineCharts {
         option['onRemoved'] = this.removeOverlay;
 
         if (option['points'] !== undefined) {
-
-            // this.handlePoints(option.points)
             option.points = option.points.map(function (p) {
                 return { value: p.value }
-                return { timestamp: p.timestamp, value: p.value }
             });
         }
 
         if (override) {
             return this.chart.overrideOverlay(option);
         }
+
         return this.chart.createOverlay(option);
     }
 
     saveOverlay(event) {
-        var mark_type;
+        var overlay = event.overlay;
+        var extendData = event.overlay.extendData || {};
+        var alarm_form = {}
+
         switch (event.overlay.name) {
-            case 'priceLine':
-                mark_type = 'line'
-                break;
-            case 'sampleRect':
-                mark_type = 'rect'
-                break;
             case 'alarm_line':
-                mark_type = 'alarm_line'
+                var value = parseFloat(overlay.points[0].value.toFixed(2));
+                alarm_form = {
+                    "price": value,
+                    "timing_type": value > extendData.newbar.close ? 1 : 2,
+                    "remark": `${extendData.code} ${value > extendData.newbar.close ? '升破' : '跌破'} ${value}`,
+                    "overlay_id": `${overlay.id}`,
+                }
+                layer.open({
+                    title: `针对${extendData.code}创建警报`,
+                    type: 2,
+                    area: ['570px', '550px'],
+                    content: '/stock/alarmForm',
+                    success: function (layero, index) {
+                        layer.setTop(layero)
+                        sendMsg('alarm_form', alarm_form);
+                    }
+                });
                 break;
             default:
                 return console.log('save error')
                 break;
         }
 
-        fetchAddMarks({ code: getUrlQuery('code'), overlay_id: event.overlay.id, option: JSON.stringify(event.overlay), mark_type: mark_type })
+        fetchAddMarks({ code: getUrlQuery('code'), overlay_id: event.overlay.id, option: JSON.stringify(event.overlay), mark_type: event.overlay.name, alarm_form: JSON.stringify(alarm_form) })
             .then(res => {
             })
     }
@@ -187,7 +200,11 @@ class AppKlineCharts {
      */
     setIndicatorVOL() {
         this.chart.createIndicator('VOL', false, {
-            id: "vol_panne"
+            id: "vol_panne",
+            paneOptions: {
+                height: 150,
+                height: 100,
+            }
         })
     }
 
@@ -197,7 +214,11 @@ class AppKlineCharts {
     setIndicatorMACD() {
         // 创建一个副图技术指标MACD
         this.chart.createIndicator('MACD', false, {
-            id: "macd_panne"
+            id: "macd_panne",
+            paneOptions: {
+                height: 150,
+                height: 100,
+            }
         })
     }
 

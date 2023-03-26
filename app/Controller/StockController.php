@@ -46,4 +46,10 @@ class StockController extends BaseController
         return $render->render('stock/search');
     }
     
+    #[Middlewares([HttpAuthMiddleware::class])]
+    public function alarmForm(RenderInterface $render)
+    {
+        return $render->render('stock/alarmForm');
+    }
+    
 }
