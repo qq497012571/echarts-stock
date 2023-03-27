@@ -56,10 +56,19 @@ class StockController extends BaseController
     public function addMark(RequestInterface $request)
     {
         if ($request->getMethod() == 'POST') {
-            $this->stockService->addMark($request->input('code'), $request->input('overlay_id'), $request->input('option'), $request->input('mark_type'));
+            $this->stockService->addMark($request->input('code'), $request->input('overlay_id'), $request->input('option'), $request->input('mark_type'), $request->input('alarm_form', '{}'));
             return $this->outputJson([]);
         }
     }
+
+    public function saveAlarm(RequestInterface $request)
+    {
+        if ($request->getMethod() == 'POST') {
+            $this->stockService->saveAlarm($request->inputs(['timing_type', 'price', 'time_type', 'expire_time', 'title', 'remark', 'overlay_id']));
+            return $this->outputJson([]);
+        }
+    }
+
 
     /**
      * 删除overlay
@@ -69,6 +78,16 @@ class StockController extends BaseController
     {
         $this->stockService->removeMark($request->input('code'), $request->input('overlay_id'));
         return $this->outputJson([]);
+    }
+
+
+    /**
+     * 搜索股票
+     * @param RequestInterface $request
+     */
+    public function search(RequestInterface $request)
+    {
+        return $this->outputJson($this->stockService->search($request->input('code')));
     }
 
 }

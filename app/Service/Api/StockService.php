@@ -12,16 +12,14 @@ declare(strict_types=1);
 
 namespace App\Service\Api;
 
-use App\Exception\ServiceException;
 use App\Library\StockApiSupport\XueqiuApi;
 use App\Library\Utils\ArrayHelper;
+use App\Model\StockAlarm;
 use App\Model\StockMark;
-use App\Model\User;
 use App\Model\UserStock;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\HandlerStackFactory;
 use Hyperf\Contract\SessionInterface;
-use Hyperf\Utils\Codec\Json;
 
 class StockService
 {
@@ -46,7 +44,7 @@ class StockService
     public function get($code, $ma, $limit, $timestamp)
     {
         $user = $this->session->get('user');
-        $xueqiuApi = new XueqiuApi($user['token'], $user['xueqiu_cookie']);
+        $xueqiuApi = new XueqiuApi($user['email'], $user['xueqiu_cookie']);
         $klines = $xueqiuApi->getKline($code, $ma, $limit, $timestamp);
         return $klines;
     }
@@ -57,7 +55,7 @@ class StockService
     public function list($page, $pagesize, $syncStock = 0)
     {
         $user = $this->session->get('user');
-        $xueqiuApi = new XueqiuApi($user['token'], $user['xueqiu_cookie']);
+        $xueqiuApi = new XueqiuApi($user['email'], $user['xueqiu_cookie']);
 
         if ($syncStock) {
             $result = $xueqiuApi->getList();
@@ -95,7 +93,6 @@ class StockService
                 $v->percent = $resultMap[$v['code']]['percent'] ?? '';
                 $v->chg = $resultMap[$v['code']]['chg'] ?? '';
             }
-
         }
 
 
@@ -108,7 +105,6 @@ class StockService
      */
     public function add($code)
     {
-
     }
 
     /**
@@ -121,25 +117,31 @@ class StockService
         $userStock = UserStock::query()->where('code', $code)->where('user_id', $user['id'])->first();
         $userStock->delete();
         if ($user['xueqiu_cookie']) {
-            $xueqiuApi = new XueqiuApi($user['token'], $user['xueqiu_cookie']);
+            $xueqiuApi = new XueqiuApi($user['email'], $user['xueqiu_cookie']);
             $result = $xueqiuApi->cancel($code);
-            var_dump($result);
         }
     }
 
     /**
      * 搜索股票
-     * @param $word
+     * @param $code
      */
-    public function serach($word)
+    public function search($code)
     {
+        $user = $this->session->get('user');
+        $xueqiuApi = new XueqiuApi($user['email'], $user['xueqiu_cookie']);
+        $result = $xueqiuApi->search($code);
+        $data = [];
+        foreach ($result['stocks'] as $stock) {
+            $data[] = $stock;
+        }
+        return $data;
     }
-
 
     /**
      * 新增标记
      */
-    public function addMark($code, $overlayId, $option, $markType)
+    public function addMark($code, $overlayId, $option, $markType, $alarmForm)
     {
         $user = $this->session->get('user');
         $stockMark = StockMark::query()->where('code', $code)->where('user_id', $user['id'])->where('overlay_id', $overlayId)->first();
@@ -151,7 +153,48 @@ class StockService
         }
         $stockMark->option = $option;
         $stockMark->user_id = $user['id'];
+
+
+        if ($markType == 'alarm_line') {
+
+            $alarmForm = json_decode($alarmForm, true);
+
+            if ($stockMark->alarm_id) {
+                $stockAlarm = StockAlarm::query()->where('id', $stockMark->alarm_id)->first();
+            } else {
+                $stockAlarm = new StockAlarm();
+            }
+            
+            $stockAlarm->user_id = $user['id'];
+            $stockAlarm->code = $code;
+            $stockAlarm->price = $alarmForm['price'];
+            $stockAlarm->timing_type = $alarmForm['timing_type'];
+            $stockAlarm->time_type = 1;
+            $stockAlarm->status = 0;
+            $stockAlarm->expire_time = time() + 25200; // 默认七天后过期
+            $stockAlarm->push_channel = 'web'; // 默认七天后过期
+            $stockAlarm->remark = $alarmForm['remark'];
+            $stockAlarm->save();
+
+            $stockMark->alarm_id = $stockAlarm->id;
+        }
         $stockMark->save();
+    }
+
+    public function saveAlarm($data)
+    {
+        $user = $this->session->get('user');
+        $stockMark = StockMark::query()->where('user_id', $user['id'])->where('overlay_id', $data['overlay_id'])->first();
+        $alarm = StockAlarm::query()->where('id', $stockMark->alarm_id)->first();
+        if ($alarm) {
+            $alarm->timing_type = $data['timing_type'];
+            $alarm->price = $data['price'];
+            $alarm->time_type = $data['time_type'];
+            $alarm->title = $data['title'];
+            $alarm->remark = $data['remark'];
+            $alarm->expire_time = strtotime($data['expire_time']);
+            $alarm->save();
+        }
     }
 
     /**
@@ -160,7 +203,13 @@ class StockService
     public function removeMark($code, $overlayId)
     {
         $user = $this->session->get('user');
-        StockMark::query()->where('code', $code)->where('user_id', $user['id'])->where('overlay_id', $overlayId)->delete();
+        $stockMark = StockMark::query()->where('code', $code)->where('user_id', $user['id'])->where('overlay_id', $overlayId)->first();
+        if ($stockMark->alarm_id) {
+            $alarm = StockAlarm::query()->where('id', $stockMark->alarm_id)->first();
+            $alarm->is_del = 1;
+            $alarm->save();
+        }
+        $stockMark->delete();
     }
 
     /**
@@ -178,7 +227,5 @@ class StockService
      */
     public function addAlarm()
     {
-
     }
-    
 }

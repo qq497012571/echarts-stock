@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\UserService;
+use App\Service\Api\UserProfileService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\View\RenderInterface;
 use App\Middleware\HttpAuthMiddleware;
@@ -19,6 +20,8 @@ use Hyperf\HttpServer\Annotation\AutoController;
 use Hyperf\HttpServer\Annotation\Middlewares;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\Contract\SessionInterface;
+
 
 #[AutoController()]
 class HomeController extends BaseController
@@ -29,17 +32,36 @@ class HomeController extends BaseController
     #[Inject()]
     public $userService;
 
+    /**
+     * @var UserProfileService
+     */
+    #[Inject()]
+    public $userProfileService;
+
+    /**
+     * @var SessionInterface
+     */
+    #[Inject()]
+    public $session;
+
 
     #[Middlewares([HttpAuthMiddleware::class])]
     public function index(RenderInterface $render)
     {
-        return $render->render('layouts/app');
+        return $render->render('layouts/app', ['user' => $this->session->get('user')]);
+    }
+
+    #[Middlewares([HttpAuthMiddleware::class])]
+    public function profile(RenderInterface $render)
+    {
+        return $render->render('home/profile', ['user' => $this->userProfileService->profile()]);
     }
 
 
-    public function test(RenderInterface $render)
+    #[Middlewares([HttpAuthMiddleware::class])]
+    public function qrcode(RenderInterface $render)
     {
-        return $render->render('test/test');
+        return $render->render('home/qrcode');
     }
 
     /**
@@ -48,7 +70,7 @@ class HomeController extends BaseController
     public function login(RequestInterface $request, ResponseInterface $response, RenderInterface $render)
     {
         if ($request->getMethod() == 'POST') {
-            $this->userService->login($request->post('token'));
+            $this->userService->login($request->post('email'));
             return $response->redirect('/');
         }
         return $render->render('home/login');

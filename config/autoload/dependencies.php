@@ -11,4 +11,5 @@ declare(strict_types=1);
  */
 return [
     'HttpServer' => Hyperf\HttpServer\Server::class,
+    \Hyperf\SocketIOServer\SidProvider\SidProviderInterface::class => \Hyperf\SocketIOServer\SidProvider\SessionSidProvider::class,
 ];

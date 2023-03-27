@@ -40,4 +40,13 @@ let fetchCancelUserStock = function(data) {
     return $.post('/api/user_stock/cancel', data)
 }
 
-export {fetchKlines, fetchMarks, fetchAddMarks, fetchRemoveMarks, fetchCancelUserStock}
+
+/**
+ * 生成雪球二维码
+ */
+let fetchQrCode = function() {
+    return $.get('/api/user_profile/qrcode')
+}
+
+
+export {fetchKlines, fetchMarks, fetchAddMarks, fetchRemoveMarks, fetchCancelUserStock, fetchQrCode}

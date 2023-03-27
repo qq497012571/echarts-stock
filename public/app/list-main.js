@@ -1,12 +1,43 @@
-import { fetchCancelUserStock} from "./modules/Api.mjs";
+import { fetchCancelUserStock } from "./modules/Api.mjs";
 
 
 
-layui.use('table', function () {
+layui.use(['table', 'dropdown'], function () {
     var table = layui.table;
+    var dropdown = layui.dropdown
+    
+
+    dropdown.render({
+        elem: '#search-input'
+        , data: [{
+            title: 'menu item 1'
+            , id: 101
+        }, {
+            title: 'menu item 2'
+            , id: 102
+        }, {
+            title: 'menu item 3'
+            , id: 103
+        }, {
+            title: 'menu item 4'
+            , id: 104
+        }, {
+            title: 'menu item 5'
+            , id: 105
+        }, {
+            title: 'menu item 6'
+            , id: 106
+        }]
+        , click: function (obj) {
+            this.elem.val(obj.title);
+        }
+        , style: 'width: 235px;'
+    });
+
 
     //第一个实例
     var tableObj = table.render({
+        id: 'sotck-table',
         elem: '#sotck-table',
         url: '/api/user_stock/list',
         page: true,
@@ -48,16 +79,25 @@ layui.use('table', function () {
         ]
     });
 
+    $('#add-btn').click(function () {
+        layer.open({
+            type: 2,
+            area: ['380px', '430px'],
+            skin: 'layui-layer-rim',
+            content: '/stock/search'
+        });
+    });
 
     $('#sync-btn').click(function () {
-        tableObj.reloadData('stock-table', {
+        tableObj.reload({
+            id: 'stock-table',
             where: {
                 "sync_stock": 1
             }
         });
     });
 
-    // loopReloadData(tableObj);
+    loopReloadData(tableObj);
 
     // 单元格工具事件
     table.on('tool(stock-table)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
@@ -89,5 +129,8 @@ layui.use('table', function () {
             tableObj.reloadData()
         }, 3000);
     }
+
+
+
 
 });
