@@ -65,7 +65,7 @@
 
     .right-bar-box {
         display: flex;
-        flex-direction:column;
+        flex-direction: column;
         /* text-align: center; */
         background-color: #131722;
         height: 90%;
@@ -73,7 +73,7 @@
         box-sizing: border-box;
     }
 
-    .right-bar-box span{
+    .right-bar-box span {
         height: 40px;
         width: 100%;
         text-align: center;
@@ -81,16 +81,48 @@
         border-radius: 5%;
     }
 
-    .right-bar-box i{
+    .right-bar-box i {
         font-size: 26px;
         color: white;
         cursor: pointer;
     }
 
-    .right-bar-box span:hover{
+    .right-bar-box span:hover {
         background-color: #1e53c9;
     }
 
+
+    .list-item {
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        color: red;
+    }
+
+    .list-item li {
+        height: 50px;
+        width: 100%;
+        border-bottom: 1px solid #2a2e39;
+        color: white;
+        cursor: pointer;
+    }
+
+
+    .list-item li:hover {
+        background-color: #19567f;
+    }
+
+    .list-item li .left {
+        float: left;
+        margin-top: 5px;
+        padding: 5px;
+    }
+
+    .list-item li .right {
+        float: right;
+        margin-top: 5px;
+        padding: 5px;
+    }
 </style>
 @endsection
 <div class="layui-fluid">
@@ -115,7 +147,150 @@
         </div>
         <div class="layui-col-md2 layui-col-space1">
             <div class="layui-col-md10">
-                <div style="height: 90%; width:100%; background-color:#131722">内部列</div>
+                <div style="height: 90%; width:100%; background-color:#131722;overflow:auto">
+                    <ul class="list-item">
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left">
+                                <p>纯碱2305</p>
+                                <p>sh600001</p>
+                            </div>
+                            <div class="right">
+                                <p>16516</p>
+                                <p>-8%</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div class="layui-col-md2">
                 <div class="right-bar-box">
