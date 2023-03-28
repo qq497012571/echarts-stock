@@ -8,3 +8,6 @@
 FROM mysql:latest
 
 # EXPOSE 3609
+
+WORKDIR /root/backup
+CMD ["chmod", "+x", "/root/backup/backup.sh"]

@@ -14,11 +14,11 @@
             <!-- 头部区域（可配合layui 已有的水平导航） -->
             <ul class="layui-nav layui-layout-left">
                 <!-- 移动端显示 -->
-                <!-- <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
+                <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
                     <i class="layui-icon layui-icon-spread-left"></i>
                 </li>
 
-                <li class="layui-nav-item layui-hide-xs"><a href="">nav 1</a></li>
+                <li class="layui-nav-item layui-hide-xs"><a href="/stock/kline?code=SH600600" target="body">图表</a></li>
                 <li class="layui-nav-item layui-hide-xs"><a href="">nav 2</a></li>
                 <li class="layui-nav-item layui-hide-xs"><a href="">nav 3</a></li>
                 <li class="layui-nav-item">
@@ -28,7 +28,7 @@
                         <dd><a href="">menu 22</a></dd>
                         <dd><a href="">menu 33</a></dd>
                     </dl>
-                </li> -->
+                </li>
             </ul>
             <ul class="layui-nav layui-layout-right">
                 <li class="layui-nav-item layui-hide layui-show-md-inline-block">
