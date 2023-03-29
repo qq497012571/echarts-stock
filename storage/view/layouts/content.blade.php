@@ -7,7 +7,8 @@
     @yield('style')
 </head>
 
-<body>
+<body style="overflow: hidden;">
+
     <div class="layui-fluid">
         @yield('content')
     </div>

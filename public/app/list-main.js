@@ -4,37 +4,6 @@ import { fetchCancelUserStock } from "./modules/Api.mjs";
 
 layui.use(['table', 'dropdown'], function () {
     var table = layui.table;
-    var dropdown = layui.dropdown
-    
-
-    dropdown.render({
-        elem: '#search-input'
-        , data: [{
-            title: 'menu item 1'
-            , id: 101
-        }, {
-            title: 'menu item 2'
-            , id: 102
-        }, {
-            title: 'menu item 3'
-            , id: 103
-        }, {
-            title: 'menu item 4'
-            , id: 104
-        }, {
-            title: 'menu item 5'
-            , id: 105
-        }, {
-            title: 'menu item 6'
-            , id: 106
-        }]
-        , click: function (obj) {
-            this.elem.val(obj.title);
-        }
-        , style: 'width: 235px;'
-    });
-
-
     //第一个实例
     var tableObj = table.render({
         id: 'sotck-table',

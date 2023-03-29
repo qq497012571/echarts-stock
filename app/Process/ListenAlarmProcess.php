@@ -8,7 +8,6 @@ use App\Library\StockApiSupport\XueqiuApi;
 use App\Library\Utils\ArrayHelper;
 use App\Model\StockAlarm;
 use App\Model\StockMark;
-use App\Model\UserStock;
 use Hyperf\Process\AbstractProcess;
 use Hyperf\Process\Annotation\Process;
 use Hyperf\Contract\StdoutLoggerInterface;
@@ -19,10 +18,8 @@ class ListenAlarmProcess extends AbstractProcess
 {
     public function handle(): void
     {
-        
         $xueqiu = new XueqiuApi('listen_alarm_process', 'device_id=d0c2ab3e20f0efab89b9b2a3d2bd20d1;acw_tc=2760826d16797308959006754e12a28c039f94ad04412ac8100785f53aac6b;remember=;xq_a_token=92c395900bf9ac802a4072b81013daffdb344d99;xqat=92c395900bf9ac802a4072b81013daffdb344d99;xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOjI4MDYyNjAwNjYsImlzcyI6InVjIiwiZXhwIjoxNjgyMTU3NDE1LCJjdG0iOjE2Nzk3MzA5MTA0OTksImNpZCI6ImQ5ZDBuNEFadXAifQ.pkTF1BFC7dTwWug-pxgdKvG3IfuMSwEIWgpjpUcb7Zj9WhQOVTHRkRSIxugdpm0f468hmC4SUfTD9yzKzQuHKDh8DgwDYS-TO7rYlV1C9lKaS-K3rRCNKMrSK7jTX9wilw1au8Gcp7Z9CbOxZ-A-8nsSIjfrjd9Q8mKtFV20ZpqLCjrA3oV7LeF6XQ5zSfi9yjXAhgxQLtupRBPuWfvQ2NkSVo03IML9ZrMoBGKsfvfosnPuH2zBlSB1Hp1az_6ETSYBfOrYPoN_CZAxiBSJqDZ56piMZ2STfQie7l-3M6dNbA6ETLnC4cw3gjsgUTHL9uS0fv_ozsN4H9l_Tvn0zA;xq_r_token=37668350010e6b3c76b4591feaf9041fc62155fc;xq_is_login=1;u=2806260066');
-
-
+        
         while (true) {
             $alarmList = StockAlarm::query()->where('is_del', 0)->where('status', 0)->where('expire_time', '>', time())->get()->toArray();
             if (count($alarmList)) {
@@ -47,6 +44,9 @@ class ListenAlarmProcess extends AbstractProcess
             }
             sleep(5);
         }
+
+
+
     }
 
 

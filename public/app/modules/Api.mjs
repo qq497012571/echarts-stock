@@ -4,23 +4,23 @@
  * @param code 
  * @param ma 
  */
-let fetchKlines = function(code, ma, limit = 286, timestamp = 0) {
-    return $.get('/api/stock/klines', {code: code, ma:ma, limit:limit, timestamp: timestamp})
+let fetchKlines = function (code, ma, limit = 286, timestamp = 0) {
+    return $.get('/api/stock/klines', { code: code, ma: ma, limit: limit, timestamp: timestamp })
 }
 
 /**
  * 获取k线图标记
  * @param code 
  */
-let fetchMarks = function(code) {
-    return $.get('/api/stock/marks', {code: code})
+let fetchMarks = function (code) {
+    return $.get('/api/stock/marks', { code: code })
 }
 
 /**
  * 添加K线标记
  * @param data 
  */
-let fetchAddMarks = function(data) {
+let fetchAddMarks = function (data) {
     return $.post('/api/stock/addMark', data)
 }
 
@@ -28,7 +28,7 @@ let fetchAddMarks = function(data) {
  * 移除K线标记
  * @param data 
  */
-let fetchRemoveMarks = function(data) {
+let fetchRemoveMarks = function (data) {
     return $.post('/api/stock/removeMark', data)
 }
 
@@ -36,17 +36,19 @@ let fetchRemoveMarks = function(data) {
  * 移除K线标记
  * @param data 
  */
-let fetchCancelUserStock = function(data) {
+let fetchCancelUserStock = function (data) {
     return $.post('/api/user_stock/cancel', data)
 }
-
 
 /**
  * 生成雪球二维码
  */
-let fetchQrCode = function() {
+let fetchQrCode = function () {
     return $.get('/api/user_profile/qrcode')
 }
 
+let fetchQuotes = function (data) {
+    return $.get('/api/user_stock/list', data)
+}
 
-export {fetchKlines, fetchMarks, fetchAddMarks, fetchRemoveMarks, fetchCancelUserStock, fetchQrCode}
+export { fetchKlines, fetchMarks, fetchAddMarks, fetchRemoveMarks, fetchCancelUserStock, fetchQrCode, fetchQuotes }
