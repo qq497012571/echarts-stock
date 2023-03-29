@@ -55,9 +55,8 @@ class StockService
     public function list($page, $pagesize, $syncStock = 0)
     {
         $user = $this->session->get('user');
-        $xueqiuApi = new XueqiuApi($user['email'], $user['xueqiu_cookie']);
-
         if ($syncStock) {
+            $xueqiuApi = new XueqiuApi($user['email'], $user['xueqiu_cookie']);
             $result = $xueqiuApi->getList();
             if (isset($result['data']['stocks'])) {
                 foreach ($result['data']['stocks'] as $stock) {
@@ -74,28 +73,10 @@ class StockService
             }
         }
 
-        $userQuery = UserStock::query()->where('user_id', $user['id']);
+        $userQuery = UserStock::query()->leftJoin('stock_market', 'stock_market.symbol', '=', 'user_stock.code')->where('user_stock.user_id', $user['id']);
+        $fields = ['user_stock.id', 'user_stock.code', 'stock_market.name', 'stock_market.current', 'stock_market.percent', 'stock_market.chg'];
         $count = $userQuery->count();
-        $list = $userQuery->offset(($page - 1) * $pagesize)->limit($pagesize)->orderBy('created_at', 'desc')->get();
-
-        if (count($list)) {
-            $result = $xueqiuApi->quote(implode(',', ArrayHelper::array_column($list, 'code')));
-
-            $resultMap = [];
-            foreach ($result['data']['items'] as $res) {
-                if (isset($res['quote']['symbol'])) {
-                    $resultMap[$res['quote']['symbol']] = $res['quote'];
-                }
-            }
-
-            foreach ($list as &$v) {
-                $v->current = $resultMap[$v['code']]['current'] ?? '';
-                $v->percent = $resultMap[$v['code']]['percent'] ?? '';
-                $v->chg = $resultMap[$v['code']]['chg'] ?? '';
-            }
-        }
-
-
+        $list = $userQuery->offset(($page - 1) * $pagesize)->limit($pagesize)->orderBy('user_stock.created_at', 'desc')->get($fields);
         return [$list, $count];
     }
 
@@ -164,7 +145,7 @@ class StockService
             } else {
                 $stockAlarm = new StockAlarm();
             }
-            
+
             $stockAlarm->user_id = $user['id'];
             $stockAlarm->code = $code;
             $stockAlarm->price = $alarmForm['price'];

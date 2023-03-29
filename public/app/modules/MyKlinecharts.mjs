@@ -1,6 +1,10 @@
 import { fetchAddMarks, fetchRemoveMarks } from "./Api.mjs";
 import { getUrlQuery } from "./Utils.mjs";
 
+
+const UP_COLOR = '#ff3d3d'
+const DOWN_COLOR = '#10cc55'
+
 /**
  * 覆盖物: 画矩形框
  */
@@ -104,8 +108,30 @@ class AppKlineCharts {
             grid: {
                 show: false,
             },
+            // 蜡烛柱
+            candle: {
+                type: 'candle_up_stroke',
+                bar: {
+                    upColor: UP_COLOR,
+                    downColor: DOWN_COLOR,
+                    noChangeColor: '#888888'
+                }
+            },
+            indicator: {
+                bars: [{
+                    // 'fill' | 'stroke' | 'stroke_fill'
+                    style: 'fill',
+                    // 'solid' | 'dashed'
+                    borderStyle: 'solid',
+                    borderSize: 1,
+                    borderDashedValue: [2, 2],
+                    upColor: UP_COLOR,
+                    downColor: DOWN_COLOR,
+                    backgroundColor:'blue',
+                    // noChangeColor: 'yellow'
+                }],
+            }
         })
-
 
 
         this.registerOverlay()

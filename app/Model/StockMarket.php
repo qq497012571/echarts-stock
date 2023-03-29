@@ -8,7 +8,7 @@ use Hyperf\DbConnection\Model\Model;
 
 /**
  * @property int $id 
- * @property int $code 
+ * @property string $code 
  * @property string $symbol 
  * @property string $name 
  * @property int $status 
@@ -17,8 +17,8 @@ use Hyperf\DbConnection\Model\Model;
  * @property string $open 
  * @property string $high 
  * @property string $low 
- * @property int $percent 
- * @property int $chg 
+ * @property string $percent 
+ * @property string $chg 
  * @property int $volume 
  * @property int $amount 
  * @property int $market_capital 
@@ -41,5 +41,5 @@ class StockMarket extends Model
     /**
      * The attributes that should be cast to native types.
      */
-    protected array $casts = ['id' => 'integer', 'code' => 'integer', 'status' => 'integer', 'percent' => 'integer', 'chg' => 'integer', 'volume' => 'integer', 'amount' => 'integer', 'market_capital' => 'integer', 'timestamp' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected array $casts = ['id' => 'integer', 'status' => 'integer', 'volume' => 'integer', 'amount' => 'integer', 'market_capital' => 'integer', 'timestamp' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 }
