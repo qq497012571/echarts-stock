@@ -64,6 +64,10 @@
         margin-left: 8px;
     }
 
+    .right-container {
+        height: 90%;
+    }
+
     .right-box {
         width: 100%;
         height: 90%;
@@ -97,9 +101,13 @@
         background-color: #1e53c9;
     }
 
+    .right-bar-box .select {
+        background-color: #1e53c9;
+    }
+
     .stock-list-container {
-        height: 90%;
         width: 100%;
+        height: 95%;
         background-color: #131722;
         overflow: auto;
     }
@@ -125,11 +133,13 @@
     }
 
     .list-item li {
-        height: 50px;
-        width: 100%;
         border-bottom: 1px solid #2a2e39;
         color: white;
         cursor: pointer;
+    }
+
+    .list-item li.selected {
+        background-color: #19567f;
     }
 
     .list-item li:hover {
@@ -138,42 +148,58 @@
 
     .list-item li .left {
         float: left;
-        margin-top: 5px;
         padding: 5px;
     }
 
     .list-item li .right {
         float: right;
-        margin-top: 5px;
         padding: 5px;
     }
 
     .stock-list-header {
         display: flex;
         background-color: #131722;
-        color:white;
+        color: white;
         font-size: 18px;
-        cursor: pointer;
         border-bottom: 1px solid #2a2e39;
     }
 
-    .stock-list-header .layui-icon-addition{
+    .stock-list-header .layui-icon-addition {
         font-size: 18px;
     }
 
-    .stock-list-header span{
+    .stock-list-header span {
         display: block;
-        line-height: 25px;
-        padding: 8px 10px 8px 10px;
+        padding: 9px;
     }
 
-    .stock-list-header span:hover{
+    .stock-list-header span:hover {
+        background-color: #19567f;
+    }
+
+    .stock-table {
+        width: 100%;
+        color: white;
+        text-align: center;
+        background-color: #131722;
+    }
+
+    .stock-table thead {
+        border-bottom: 1px solid gray;
+        color: #363a45;
+    }
+
+    .stock-table td {
+        border-right: 1px solid gray;
+    }
+
+    .stock-table tr:hover {
         background-color: #19567f;
     }
 </style>
 @endsection
 <div class="layui-fluid">
-    <div class="layui-row layui-col-space5 header-tool-bar">
+    <div class="layui-row header-tool-bar">
         <div class="klinecharts-pro-period-bar">
             <span class="item period selected" key="day">日K</span>
             <span class="item period" key="week">周</span>
@@ -193,20 +219,22 @@
             <div id="kline-charts" style="height: 90%;background-color: #161a25;"></div>
         </div>
         <div class="layui-col-md2 layui-col-space1">
-            <div class="layui-col-md10">
-                <div class="stock-list-header">
-                    <span><i class="layui-icon layui-icon-addition"></i></span>
-                </div>
-                <div class="stock-list-container" id="list-item-container">
-                    <ul class="list-item" id="stock-list-box"></ul>
+            <div class="layui-col-md12">
+                <div class="right-container">
+                    <div class="stock-list-header">
+                        <span id="add_stock"><i class="layui-icon layui-icon-addition"></i></span>
+                    </div>
+                    <div class="stock-list-container" id="list-item-container">
+                        <ul class="list-item" id="stock-list-box"></ul>
+                    </div>
                 </div>
             </div>
-            <div class="layui-col-md2">
+            <!-- <div class="layui-col-md2">
                 <div class="right-bar-box">
-                    <span><i class="item iconfont icon-yewubaobiao"></i></span>
+                    <span class="select"><i class="item iconfont icon-yewubaobiao"></i></span>
                     <span><i class="item iconfont icon-naozhong1"></i></span>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
@@ -215,7 +243,7 @@
 @section('script')
 <script id="list-item-tpl" type="text/html">
     @{{# layui.each(d.data, function(index, item){ }}
-        <li id="stock-item-@{{item.code}}">
+        <li id="stock-item-@{{item.code}}" code="@{{item.code}}" class="@{{# if(d.currentCode == item.code){ }}selected@{{# } }}">
             <div class="left">
                 <p>@{{item.name}}</p>
                 <p>@{{item.code}}</p>

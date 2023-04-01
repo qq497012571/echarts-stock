@@ -199,14 +199,6 @@ class StockService
     public function marks($code)
     {
         $user = $this->session->get('user');
-        return StockMark::query()->where('user_id', $user['id'])->where('code', $code)->get()->toArray();
-    }
-
-
-    /**
-     * 添加预警
-     */
-    public function addAlarm()
-    {
+        return StockMark::query()->where('user_id', $user['id'])->where('code', $code)->where('pause', 0)->get()->toArray();
     }
 }

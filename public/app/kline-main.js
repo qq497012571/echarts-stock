@@ -7,8 +7,7 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
     var laytpl = layui.laytpl;
     var flow = layui.flow;
 
-
-    var code = getUrlQuery('code');
+    var code = getUrlQuery('code')
     var app = new AppKlineCharts('kline-charts')
     var currentMa = 'day'
     var currentCode = code
@@ -32,18 +31,23 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
                     var data = res.data
                     var pages = Math.ceil(res.count / 20)
                     data.length && data.map(r => codes.add(r.code))
-                    console.log(Array.from(codes))
                     laytpl($('#list-item-tpl').html()).render({ data, currentCode: currentCode }, function (html) {
                         next(html, page < pages)
+
+                        $('.list-item li').click(function () {
+                            if (code != $(this).attr('code')) {
+                                window.location.href = '/stock/kline?code=' + $(this).attr('code')
+                            }
+                        })
                     });
                 });
             }
         });
 
         return setInterval(() => {
-            fetchQuotes({ page:1, limit:Array.from(codes).length }).done(function (res) {
+            fetchQuotes({ page: 1, limit: Array.from(codes).length }).done(function (res) {
                 var data = res.data;
-                $(data).each(function(i,v){
+                $(data).each(function (i, v) {
                     var p = `<p>${v.current}</p><p>${v.percent}%</p>`
                     $(`#stock-item-${v.code} .right`).html(p);
                     if (v.percent >= 0) {
@@ -53,7 +57,7 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
                     }
                 });
             });
-        },3000);
+        }, 3000);
     }
 
     app.chart.loadMore((timestamp) => {
@@ -69,6 +73,21 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
         });
     })
 
+
+    $('.right-bar-box span').on('click', function () {
+        if ($(this), $(this).hasClass('select')) {
+            return
+        }
+        $('.right-bar-box span').removeClass('select') && $(this).addClass('select')
+    });
+
+
+    $('.right-bar-box span').on('click', function () {
+        if ($(this), $(this).hasClass('select')) {
+            return
+        }
+        $('.right-bar-box span').removeClass('select') && $(this).addClass('select')
+    });
 
     $(document).on('keyup', function (e) {
         if (e.keyCode == 32 || e.keyCode == 13 || e.keyCode == 27) {
