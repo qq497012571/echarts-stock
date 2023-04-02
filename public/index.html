@@ -1,21 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
+<script>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+    // var datelist = [];
 
-<body>
-    <div id="main" style="width: 100%; height: 700px;"></div>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
-    <script src="src/const.js"></script>
-    <script src="src/tool.js"></script>
-    <script src="src/faker.js"></script>
-    <script src="src/main.js"></script>
-    <script>main()</script>
-</body>
+    function createDayDateList(date, step = 86400) {
+        var year = new Date(date).getFullYear();
+        var month = new Date(date).getMonth() + 1;
+        var day = new Date(date).getDate();
 
-</html>
+        var morning = [new Date(`${year}/${month}/${day} 09:30:00`).getTime(), new Date(`${year}/${month}/${day} 11:30:00`).getTime()];
+        var afternoon = [new Date(`${year}/${month}/${day} 13:00:00`).getTime(), new Date(`${year}/${month}/${day} 15:00:00`).getTime()];
+        var datelist = []
+
+        for (let start = morning[0] / 1000, end = morning[1] / 1000; start <= end; start += step) {
+            if (start * 1000 == morning[0]) {
+                continue;
+            }
+            datelist.push(new Date(start * 1000).getTime() / 1000);
+        }
+
+        for (let start = afternoon[0] / 1000, end = afternoon[1] / 1000; start <= end; start += step) {
+            if (start * 1000 == afternoon[0]) {
+                continue;
+            }
+            datelist.push(new Date(start * 1000).getTime() / 1000);
+        }
+        console.log(datelist)
+        return datelist;
+    }
+
+    // var datelist = createDayDateList('2023-04-02', 300);
+
+
+    class DrawBackControl {
+
+        static control_list = []
+
+        constructor(current_timestamp, max_index, step, master = false) {
+            this.current_index = 0
+            this.current_timestamp = current_timestamp
+            this.max_index = max_index
+            this.step = step
+            this.master = master
+
+            let datelist = createDayDateList(this.current_timestamp)
+            
+            if (datelist.length) {
+                this.datelist = datelist
+            } else { // 那就默认为0点
+                const d = new Date(this.current_timestamp);
+                let year = d.getFullYear();
+                let month = d.getMonth() + 1;
+                let day = d.getDate();
+                this.datelist = [new Date(`${year}/${month}/${day} 00:00:00`).getTime() / 1000];
+            }
+
+            DrawBackControl.control_list.push(this);
+        }
+
+        get current_date() {
+            if (this.datelist[this.current_index]) {
+                return this.datelist[this.current_index]
+            } 
+            return null;
+        }
+
+
+        move(step) {
+
+        }
+
+    }
+
+    var nextList = [
+        { index: 4, current_index: 0, next_one_step: 2, start: 1679448600, end: 1679448600, step: 3600, date: [] },
+        { index: 8, current_index: 0, next_one_step: 2, start: 1679448600, end: 1679448600, step: 1800, date: [] },
+    ];
+    
+    const k_day = new DrawBackControl('2023-04-02', 1, 86400, true);
+    const k_60m = new DrawBackControl('2023-04-02', 1, 3600);
+    const k_30m = new DrawBackControl('2023-04-02', 1, 1800);
+
+    alert(day.current_date)
+
+    // // 自动进1
+    // var item = [
+    //     { index: 1, current_index: 0, next_one_step: 4, start: 1679414400, end: 1679414400, step: 86400, date: [] },
+    //     { index: 4, current_index: 0, next_one_step: 2, start: 1679448600, end: 1679448600, step: 3600, date: [] },
+    //     { index: 8, current_index: 0, next_one_step: 2, start: 1679448600, end: 1679448600, step: 1800, date: [] },
+    // ];
+
+
+    // var maMap = {
+    //     "day": 0,
+    //     "60m": 1,
+    //     "30m": 2,
+    // }
+
+    // function move(ma, incr_index = 1) {
+    //     item[ma].current_index += incr_index;
+
+    //     if (item[ma].current_index == item[ma].index) {
+
+    //         item[ma].current_index = 0;
+    //         move(ma + 1, item[ma + 1].index);
+    //     }
+
+    // }
+
+    // move('day', 1)
+</script>

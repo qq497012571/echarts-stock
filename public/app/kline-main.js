@@ -1,7 +1,6 @@
 import { fetchKlines, fetchAddMarks, fetchMarks, fetchQuotes } from "./modules/Api.mjs";
 import { AppKlineCharts } from "./modules/MyKlinecharts.mjs";
-import { getUrlQuery } from "./modules/Utils.mjs";
-
+import { getUrlQuery, Timer } from "./modules/Utils.mjs";
 
 layui.use(['laytpl', 'flow', 'jquery'], function () {
     var laytpl = layui.laytpl;
@@ -13,11 +12,12 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
     var currentCode = code
     var codes = new Set();
     var first = true;
-    var listenStockListTimer = null;
+
 
     // 加载股票图表
     loadCharts(code, currentMa)
-    listenStockListTimer = listenStockList();
+
+    listenStockList();
 
     function listenStockList() {
 
@@ -44,20 +44,20 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
             }
         });
 
-        return setInterval(() => {
-            fetchQuotes({ page: 1, limit: Array.from(codes).length }).done(function (res) {
-                var data = res.data;
-                $(data).each(function (i, v) {
-                    var p = `<p>${v.current}</p><p>${v.percent}%</p>`
-                    $(`#stock-item-${v.code} .right`).html(p);
-                    if (v.percent >= 0) {
-                        $(`#stock-item-${v.code} .right`).removeClass('green').addClass('red')
-                    } else {
-                        $(`#stock-item-${v.code} .right`).removeClass('red').addClass('green')
-                    }
-                });
-            });
-        }, 3000);
+        // return setInterval(() => {
+        //     fetchQuotes({ page: 1, limit: Array.from(codes).length }).done(function (res) {
+        //         var data = res.data;
+        //         $(data).each(function (i, v) {
+        //             var p = `<p>${v.current}</p><p>${v.percent}%</p>`
+        //             $(`#stock-item-${v.code} .right`).html(p);
+        //             if (v.percent >= 0) {
+        //                 $(`#stock-item-${v.code} .right`).removeClass('green').addClass('red')
+        //             } else {
+        //                 $(`#stock-item-${v.code} .right`).removeClass('red').addClass('green')
+        //             }
+        //         });
+        //     });
+        // }, 3000);
     }
 
     app.chart.loadMore((timestamp) => {
@@ -97,18 +97,72 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
 
     $('.draw-bar').on('click', function () {
         switch ($(this).attr('key')) {
-            case 'draw-line':
-                var option = {
-                    name: 'priceLine',
-                    styles: {
-                        line: {
-                            style: 'solid',
-                            color: 'red',
-                            size: 1
+            case 'draw-back-line':
+                if (app.switch_draw_back_line) {
+                    return layer.msg('已经正在回放啦, 请重新开始');
+                }
+
+                if (!app.switch_draw_back_line && currentMa == 'day') {
+                    var data = app.chart.getDataList();
+                    var option = {
+                        name: 'draw_back_line',
+                        extendData: { newbar: data[data.length - 1], code: code }
+                    };
+                    app.createOverlay(option);
+                    Timer.stopAll();
+                } else {
+                    layer.msg('仅支持日线级别开始回放');
+                }
+                break;
+            case 'draw-next-line':
+                if (app.switch_draw_back_line && app.back_line.length) {
+                    let next = app.back_line.shift();
+                    app.updateData(next);
+                    // app.draw_back_line[currentMa];
+
+                    var currentSeconds = next.timestamp / 1000;
+
+                    for (let ma in app.draw_back_line) {
+                        switch (ma) {
+                            case 'day':
+                                if (currentSeconds % 86400 == 57600) {
+
+                                    app.draw_back_line[ma].start = (currentSeconds + 86400) * 1000;
+                                }
+                                break;
+                            case '60m':
+                                if (currentSeconds % 3600 == 1800) {
+                                    app.draw_back_line[ma].start = (currentSeconds + 3600) * 1000;
+                                }
+                                break;
+                            case '30m':
+                                if (currentSeconds % 1800 == 0) {
+                                    app.draw_back_line[ma].start = (currentSeconds + 1800) * 1000;
+                                }
+                                break;
+                            case '15m':
+                                if (currentSeconds % 900 == 0) {
+                                    app.draw_back_line[ma].start = (currentSeconds + 900) * 1000;
+                                }
+                                break;
+                            case '5m':
+                                if (currentSeconds % 300 == 0) {
+                                    app.draw_back_line[ma].start = (app.draw_back_line[ma].start / 1000 / 300) * (currentSeconds + 300) * 1000;
+                                    console.log('5m draw_calc', app.draw_back_line[ma].start)
+                                }
+                                break;
+                            case '1m':
+                                if (currentSeconds % 60 == 0) {
+                                    var step = (currentSeconds - (app.draw_back_line[ma].start / 1000)) / 60;
+                                    app.draw_back_line[ma].start = (app.draw_back_line[ma].start / 1000 + step * 60) * 1000;
+                                    console.log('1m draw_calc', step, app.draw_back_line[ma].start)
+                                }
+                                break;
                         }
-                    },
-                };
-                app.createOverlay(option);
+                    }
+
+
+                }
                 break;
             case 'draw-rect':
                 app.createOverlay({ name: 'sampleRect' })
@@ -156,45 +210,56 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
         });
     });
 
-
-
     function loadCharts(code, ma, num = 284, refreshTick = false) {
 
-        if (currentMa != ma && window.loadChartsTimerId != undefined) {
-            clearTimeout(window.loadChartsTimerId);
-            window.loadChartsTimerId = undefined
-        }
-
-        currentMa = ma
+        currentMa = ma;
         !refreshTick && app.chart.clearData()
 
         $.when(fetchKlines(code, ma, num, new Date().getTime()), fetchMarks(code)).done(function (d1, d2) {
             var klines = d1[0].data;
             var marks = d2[0].data;
 
-            if (refreshTick) {
-                app.updateData(klines[0])
+
+            if (app.switch_draw_back_line) {
+                var newklines = [];
+                console.log('draw_back_line')
+                for (let i = 0; i < klines.length; i++) {
+                    if (klines[i].timestamp == app.draw_back_line[ma].start) {
+                        console.log('draw_back_line', i, klines[i].timestamp, app.draw_back_line[ma].option.points[0]['timestamp'])
+                        newklines = klines.slice(0, i + 1);
+                        app.back_line = klines.slice(i + 1, klines.length);
+                        break;
+                    }
+                }
+
+                if (newklines.length) {
+                    app.data(newklines)
+                    app.createOverlay(app.draw_back_line[ma].option, !first)
+                }
             } else {
-                app.data(klines);
+                if (refreshTick) {
+                    app.updateData(klines[0])
+                } else {
+                    app.data(klines);
+                }
+
+                marks.length && marks.map((m) => {
+                    var option = JSON.parse(m.option)
+                    var data = app.chart.getDataList();
+                    var extendData = { newbar: data[data.length - 1], code: code }
+                    option.extendData = extendData;
+                    app.createOverlay(option, !first)
+                });
+
+                Timer.add('loadCharts', () => {
+                    console.log('================loadCharts================')
+                    loadCharts(code, ma, 1, true)
+                }, 2000).start();
             }
 
-            marks.length && marks.map((m) => {
-                var option = JSON.parse(m.option)
-                var data = app.chart.getDataList();
-                var extendData = { newbar: data[data.length - 1], code: code }
-                option.extendData = extendData;
-                app.createOverlay(option, !first)
-            });
 
             first = false;
             app.chart.resize();
-
-            if (window.loadChartsTimerId == undefined) {
-                window.loadChartsTimerId = setInterval(() => {
-                    loadCharts(code, ma, 1, true)
-                }, 2000);
-            }
-
         });
 
 
@@ -202,4 +267,5 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
 
 
 })
+
 

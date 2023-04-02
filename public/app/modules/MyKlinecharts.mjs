@@ -44,6 +44,39 @@ const drawRectOverlay = {
 
 klinecharts.registerOverlay(drawRectOverlay)
 
+
+var drawBackLine = {
+    name: 'draw_back_line',
+    lock: true,
+    totalStep: 2,
+    needDefaultPointFigure: true,
+    needDefaultXAxisFigure: true,
+    needDefaultYAxisFigure: true,
+    createPointFigures: function (_a) {
+        var coordinates = _a.coordinates, bounding = _a.bounding;
+        console.log(_a)
+        return [
+            {
+                type: 'line',
+                attrs: {
+                    coordinates: [
+                        {
+                            x: coordinates[0].x,
+                            y: 0
+                        }, {
+                            x: coordinates[0].x,
+                            y: bounding.height
+                        }
+                    ]
+                }
+            }
+        ];
+    }
+};
+
+
+klinecharts.registerOverlay(drawBackLine)
+
 /**
  * 覆盖物, 画预警线
  */
@@ -100,9 +133,17 @@ klinecharts.registerOverlay(alarmLine)
 
 class AppKlineCharts {
 
+    static chart = {}
+
+    back_line = []
+    draw_back_index = 0;
+    draw_back_line = null;
+    switch_draw_back_line = false;
+
     constructor(id) {
 
-        this.chart = klinecharts.init(id)
+        AppKlineCharts.chart = this.chart = klinecharts.init(id)
+
         this.chart.setLocale('zh-CN')
         this.chart.setStyles({
             grid: {
@@ -127,12 +168,11 @@ class AppKlineCharts {
                     borderDashedValue: [2, 2],
                     upColor: UP_COLOR,
                     downColor: DOWN_COLOR,
-                    backgroundColor:'blue',
+                    backgroundColor: 'blue',
                     // noChangeColor: 'yellow'
                 }],
             }
         })
-
 
         this.registerOverlay()
         this.setIndicatorMA()
@@ -142,14 +182,16 @@ class AppKlineCharts {
 
     createOverlay(option, override = false) {
 
-        option['onPressedMoveEnd'] = this.saveOverlay;
-        option['onDrawEnd'] = this.saveOverlay;
-        option['onRemoved'] = this.removeOverlay;
+        option['onPressedMoveEnd'] = this.saveOverlay.bind(this);
+        option['onDrawEnd'] = this.saveOverlay.bind(this);
+        option['onRemoved'] = this.removeOverlay.bind(this);
 
         if (option['points'] !== undefined) {
-            option.points = option.points.map(function (p) {
-                return { value: p.value }
-            });
+            if (option.name === 'alarm_line') {
+                option.points = option.points.map(function (p) {
+                    return { value: p.value }
+                });
+            }
         }
 
         if (override) {
@@ -184,7 +226,45 @@ class AppKlineCharts {
                     }
                 });
                 break;
-            default:
+            case 'draw_back_line':
+                this.switch_draw_back_line = true;
+                var data = this.chart.getDataList();
+                var startData = data.slice(0, event.overlay.points[0]['dataIndex'] + 1)
+                this.back_line = data.slice(event.overlay.points[0]['dataIndex'] + 1);
+                this.chart.applyNewData(startData)
+
+                const day_overlay_option = Object.assign({}, event.overlay);
+                day_overlay_option.points = [{ timestamp: event.overlay.points[0]['timestamp'] }]
+
+                const ma60_overlay_option = Object.assign({}, event.overlay);
+                ma60_overlay_option.points = [{ timestamp: ((event.overlay.points[0]['timestamp'] / 1000) + (34200 + (60 * 60))) * 1000 }]
+
+                const ma30_overlay_option = Object.assign({}, event.overlay);
+                ma30_overlay_option.points = [{ timestamp: ((event.overlay.points[0]['timestamp'] / 1000) + (34200 + (30 * 60))) * 1000 }]
+
+                const ma15_overlay_option = Object.assign({}, event.overlay);
+                ma15_overlay_option.points = [{ timestamp: ((event.overlay.points[0]['timestamp'] / 1000) + (34200 + (15 * 60))) * 1000 }]
+
+                const ma5_overlay_option = Object.assign({}, event.overlay);
+                ma5_overlay_option.points = [{ timestamp: ((event.overlay.points[0]['timestamp'] / 1000) + (34200 + (5 * 60))) * 1000 }]
+
+                const ma1_overlay_option = Object.assign({}, event.overlay);
+                ma1_overlay_option.points = [{ timestamp: ((event.overlay.points[0]['timestamp'] / 1000) + (34200 + (1 * 60))) * 1000 }]
+
+                this.draw_back_line = {
+                    'day': {option: day_overlay_option, start: day_overlay_option.points[0]['timestamp']},
+                    '60m': {option: ma60_overlay_option, start: ma60_overlay_option.points[0]['timestamp']},
+                    '30m': {option: ma30_overlay_option, start: ma30_overlay_option.points[0]['timestamp']},
+                    '15m': {option: ma15_overlay_option, start: ma15_overlay_option.points[0]['timestamp']},
+                    '5m': {option: ma5_overlay_option, start: ma5_overlay_option.points[0]['timestamp']},
+                    '1m': {option: ma1_overlay_option, start: ma1_overlay_option.points[0]['timestamp']},
+                };
+
+                console.log('draw_back_line', this.draw_back_line, event.overlay.points);
+
+                return;
+                break;
+            default: 32, 400
                 return console.log('save error')
                 break;
         }

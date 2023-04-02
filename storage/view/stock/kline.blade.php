@@ -53,6 +53,10 @@
         padding: 7px 9px;
         margin: 0 4px;
         border-radius: 2px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -o-user-select: none;
+        user-select: none;
     }
 
     .klinecharts-pro-period-bar .tools:hover {
@@ -171,6 +175,7 @@
     .stock-list-header span {
         display: block;
         padding: 9px;
+        cursor: pointer;
     }
 
     .stock-list-header span:hover {
@@ -209,7 +214,19 @@
             <span class="item period" key="5m">5分</span>
             <span class="item period" key="1m">1分</span>
             <div class="item tools draw-bar" key="draw-alarm-line">
-                <i class="item iconfont icon-naozhong1 " style="font-size: 16px">警报</i>
+                <span>
+                    <i class="item iconfont icon-naozhong1"></i>警报
+                </span>
+            </div>
+            <div class="item tools draw-bar" key="draw-back-line">
+                <span>
+                    <i class="item iconfont icon-hanhan-01-01"></i>回放
+                </span>
+            </div>
+            <div class="item tools draw-bar" key="draw-next-line">
+                <span>
+                    <i class="item iconfont icon-btn_nextstep"></i>下一步
+                </span>
             </div>
         </div>
     </div>
