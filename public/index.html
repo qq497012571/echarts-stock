@@ -1,7 +1,5 @@
 <script>
 
-    // var datelist = [];
-
     function createDayDateList(date, step = 86400) {
         var year = new Date(date).getFullYear();
         var month = new Date(date).getMonth() + 1;
@@ -24,88 +22,88 @@
             }
             datelist.push(new Date(start * 1000).getTime() / 1000);
         }
-        console.log(datelist)
+
+
         return datelist;
     }
 
-    // var datelist = createDayDateList('2023-04-02', 300);
+    const KlineCurrentTime = {
+        current_timestamp: null,
+        base_timestamp: null,
+        options: [
+            { current_index: 0, current_timestamp: null, step: 86400, datelist: [] },
+            { current_index: 0, current_timestamp: null, step: 3600, datelist: [] },
+            { current_index: 0, current_timestamp: null, step: 1800, datelist: [] },
+            { current_index: 0, current_timestamp: null, step: 15 * 60, datelist: [] },
+        ],
+        setup: function (str) {
 
+            this.base_timestamp = new Date(str).getTime() / 1000;
 
-    class DrawBackControl {
+            console.log(str, this.base_timestamp);
 
-        static control_list = []
-
-        constructor(current_timestamp, max_index, step, master = false) {
-            this.current_index = 0
-            this.current_timestamp = current_timestamp
-            this.max_index = max_index
-            this.step = step
-            this.master = master
-
-            let datelist = createDayDateList(this.current_timestamp)
-            
-            if (datelist.length) {
-                this.datelist = datelist
-            } else { // 那就默认为0点
-                const d = new Date(this.current_timestamp);
-                let year = d.getFullYear();
-                let month = d.getMonth() + 1;
-                let day = d.getDate();
-                this.datelist = [new Date(`${year}/${month}/${day} 00:00:00`).getTime() / 1000];
+            for (i in this.options) {
+                if (i == 0) {
+                    var s = new Date(str).getTime() / 1000;
+                    var datelist = [s, s + 86400];
+                    this.current_timestamp = s;
+                } else {
+                    var datelist = createDayDateList(str, this.options[i].step);
+                }
+                this.options[i].current_index = 0;
+                this.options[i].datelist = datelist;
+                this.options[i].current_timestamp = datelist[0];
+                this.options[i].current_max_index = datelist.length - 1;
             }
 
-            DrawBackControl.control_list.push(this);
+        },
+        move: function (index, step) {
+
+            if (this.options[index] < 0) {
+                return;
+            }
+
+            var op = this.options[index];
+            op.current_index += step;
+            op.current_timestamp = op.datelist[op.current_index];
+
+            console.log(op.current_timestamp)
+
+            if (op.current_index == op.current_max_index) {
+                if (index == 0) {
+                    return this.setup(new Date(op.datelist[op.current_index] * 1000).toLocaleString());
+                } else {
+                    return this.move(index - 1, 1);
+                }
+            } else {
+
+                for (let i = op.current_index; i < this.options.length; i++) {
+                    this.options[i].current_timestamp = op.current_timestamp;
+                    this.options[i].current_index = this.options[i].datelist.indexOf(op.current_timestamp);
+
+                    // if (this.options[i].current_timestamp > this.options[i - 1].current_timestamp) {
+                    //     this.options[i - 1].current_index += 1;
+                    //     this.options[i - 1].current_timestamp += this.options[i - 1].datelist[this.options[i - 1].current_index += 1];
+                    // }
+                }
+            }
+
+
         }
-
-        get current_date() {
-            if (this.datelist[this.current_index]) {
-                return this.datelist[this.current_index]
-            } 
-            return null;
-        }
-
-
-        move(step) {
-
-        }
-
     }
 
-    var nextList = [
-        { index: 4, current_index: 0, next_one_step: 2, start: 1679448600, end: 1679448600, step: 3600, date: [] },
-        { index: 8, current_index: 0, next_one_step: 2, start: 1679448600, end: 1679448600, step: 1800, date: [] },
-    ];
-    
-    const k_day = new DrawBackControl('2023-04-02', 1, 86400, true);
-    const k_60m = new DrawBackControl('2023-04-02', 1, 3600);
-    const k_30m = new DrawBackControl('2023-04-02', 1, 1800);
+    var current_date = '2023-04-03 00:00:00';
+    KlineCurrentTime.setup(current_date);
 
-    alert(day.current_date)
+    // 60m往前走一步
+    KlineCurrentTime.move(2, 1)
+    KlineCurrentTime.move(2, 1)
+    // KlineCurrentTime.move(2, 1)
+    // KlineCurrentTime.move(2, 1)
+    // KlineCurrentTime.move(2, 1)
+    // KlineCurrentTime.move(2, 1)
 
-    // // 自动进1
-    // var item = [
-    //     { index: 1, current_index: 0, next_one_step: 4, start: 1679414400, end: 1679414400, step: 86400, date: [] },
-    //     { index: 4, current_index: 0, next_one_step: 2, start: 1679448600, end: 1679448600, step: 3600, date: [] },
-    //     { index: 8, current_index: 0, next_one_step: 2, start: 1679448600, end: 1679448600, step: 1800, date: [] },
-    // ];
+    console.log(KlineCurrentTime.options);
 
 
-    // var maMap = {
-    //     "day": 0,
-    //     "60m": 1,
-    //     "30m": 2,
-    // }
-
-    // function move(ma, incr_index = 1) {
-    //     item[ma].current_index += incr_index;
-
-    //     if (item[ma].current_index == item[ma].index) {
-
-    //         item[ma].current_index = 0;
-    //         move(ma + 1, item[ma + 1].index);
-    //     }
-
-    // }
-
-    // move('day', 1)
 </script>
