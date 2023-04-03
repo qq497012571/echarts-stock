@@ -1,5 +1,5 @@
 import { fetchKlines, fetchAddMarks, fetchMarks, fetchQuotes } from "./modules/Api.mjs";
-import { AppKlineCharts } from "./modules/MyKlinecharts.mjs";
+import { AppKlineCharts, KlineControl } from "./modules/MyKlinecharts.mjs";
 import { getUrlQuery, Timer } from "./modules/Utils.mjs";
 
 layui.use(['laytpl', 'flow', 'jquery'], function () {
@@ -12,6 +12,16 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
     var currentCode = code
     var codes = new Set();
     var first = true;
+    var lastBarTimestamp;
+    const currentMaMap = {
+        'week': -1,
+        'day': 0,
+        '60m': 1,
+        '30m': 2,
+        '15m': 3,
+        '5m': 4,
+        '1m': 5,
+    };
 
 
     // 加载股票图表
@@ -44,20 +54,21 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
             }
         });
 
-        // return setInterval(() => {
-        //     fetchQuotes({ page: 1, limit: Array.from(codes).length }).done(function (res) {
-        //         var data = res.data;
-        //         $(data).each(function (i, v) {
-        //             var p = `<p>${v.current}</p><p>${v.percent}%</p>`
-        //             $(`#stock-item-${v.code} .right`).html(p);
-        //             if (v.percent >= 0) {
-        //                 $(`#stock-item-${v.code} .right`).removeClass('green').addClass('red')
-        //             } else {
-        //                 $(`#stock-item-${v.code} .right`).removeClass('red').addClass('green')
-        //             }
-        //         });
-        //     });
-        // }, 3000);
+        Timer.add('listenStockList', () => {
+            console.log('================更新右侧菜单行情================')
+            fetchQuotes({ page: 1, limit: Array.from(codes).length }).done(function (res) {
+                var data = res.data;
+                $(data).each(function (i, v) {
+                    var p = `<p>${v.current}</p><p>${v.percent}%</p>`
+                    $(`#stock-item-${v.code} .right`).html(p);
+                    if (v.percent >= 0) {
+                        $(`#stock-item-${v.code} .right`).removeClass('green').addClass('red')
+                    } else {
+                        $(`#stock-item-${v.code} .right`).removeClass('red').addClass('green')
+                    }
+                });
+            });
+        }, 3000).start();
     }
 
     app.chart.loadMore((timestamp) => {
@@ -118,50 +129,11 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
                 if (app.switch_draw_back_line && app.back_line.length) {
                     let next = app.back_line.shift();
                     app.updateData(next);
-                    // app.draw_back_line[currentMa];
-
-                    var currentSeconds = next.timestamp / 1000;
-
-                    for (let ma in app.draw_back_line) {
-                        switch (ma) {
-                            case 'day':
-                                if (currentSeconds % 86400 == 57600) {
-
-                                    app.draw_back_line[ma].start = (currentSeconds + 86400) * 1000;
-                                }
-                                break;
-                            case '60m':
-                                if (currentSeconds % 3600 == 1800) {
-                                    app.draw_back_line[ma].start = (currentSeconds + 3600) * 1000;
-                                }
-                                break;
-                            case '30m':
-                                if (currentSeconds % 1800 == 0) {
-                                    app.draw_back_line[ma].start = (currentSeconds + 1800) * 1000;
-                                }
-                                break;
-                            case '15m':
-                                if (currentSeconds % 900 == 0) {
-                                    app.draw_back_line[ma].start = (currentSeconds + 900) * 1000;
-                                }
-                                break;
-                            case '5m':
-                                if (currentSeconds % 300 == 0) {
-                                    app.draw_back_line[ma].start = (app.draw_back_line[ma].start / 1000 / 300) * (currentSeconds + 300) * 1000;
-                                    console.log('5m draw_calc', app.draw_back_line[ma].start)
-                                }
-                                break;
-                            case '1m':
-                                if (currentSeconds % 60 == 0) {
-                                    var step = (currentSeconds - (app.draw_back_line[ma].start / 1000)) / 60;
-                                    app.draw_back_line[ma].start = (app.draw_back_line[ma].start / 1000 + step * 60) * 1000;
-                                    console.log('1m draw_calc', step, app.draw_back_line[ma].start)
-                                }
-                                break;
-                        }
+                    if (currentMa == 'day') {
+                        KlineControl.setup(next.timestamp);
+                    } else {
+                        KlineControl.move(currentMaMap[currentMa], 1);
                     }
-
-
                 }
                 break;
             case 'draw-rect':
@@ -218,14 +190,14 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
         $.when(fetchKlines(code, ma, num, new Date().getTime()), fetchMarks(code)).done(function (d1, d2) {
             var klines = d1[0].data;
             var marks = d2[0].data;
+            var lastBarTimestamp = klines[klines.length - 1].timestamp;
 
 
             if (app.switch_draw_back_line) {
+                console.log('back', KlineControl.options[currentMaMap[currentMa]].current_timestamp)
                 var newklines = [];
-                console.log('draw_back_line')
                 for (let i = 0; i < klines.length; i++) {
-                    if (klines[i].timestamp == app.draw_back_line[ma].start) {
-                        console.log('draw_back_line', i, klines[i].timestamp, app.draw_back_line[ma].option.points[0]['timestamp'])
+                    if (klines[i].timestamp == KlineControl.options[currentMaMap[currentMa]].current_timestamp * 1000) {
                         newklines = klines.slice(0, i + 1);
                         app.back_line = klines.slice(i + 1, klines.length);
                         break;
@@ -234,7 +206,8 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
 
                 if (newklines.length) {
                     app.data(newklines)
-                    app.createOverlay(app.draw_back_line[ma].option, !first)
+                    console.log('back', app.draw_back_line[currentMaMap[currentMa]])
+                    app.createOverlay(app.draw_back_line[currentMaMap[currentMa]], !first)
                 }
             } else {
                 if (refreshTick) {
@@ -252,11 +225,10 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
                 });
 
                 Timer.add('loadCharts', () => {
-                    console.log('================loadCharts================')
+                    console.log('================更新图表数据================')
                     loadCharts(code, ma, 1, true)
                 }, 2000).start();
             }
-
 
             first = false;
             app.chart.resize();

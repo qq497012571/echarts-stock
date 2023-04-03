@@ -27,83 +27,139 @@
         return datelist;
     }
 
-    const KlineCurrentTime = {
+    /**
+     * 同步k先行动
+     **/
+    const KlineControl = {
         current_timestamp: null,
-        base_timestamp: null,
+        getTodayDatelist: function (date, step) {
+            var year = new Date(date).getFullYear();
+            var month = new Date(date).getMonth() + 1;
+            var day = new Date(date).getDate();
+
+            var morning = [new Date(`${year}/${month}/${day} 09:30:00`).getTime(), new Date(`${year}/${month}/${day} 11:30:00`).getTime()];
+            var afternoon = [new Date(`${year}/${month}/${day} 13:00:00`).getTime(), new Date(`${year}/${month}/${day} 15:00:00`).getTime()];
+            var datelist = []
+
+            for (let start = morning[0] / 1000, end = morning[1] / 1000; start <= end; start += step) {
+                if (start * 1000 == morning[0]) {
+                    continue;
+                }
+                datelist.push(new Date(start * 1000).getTime() / 1000);
+            }
+
+            for (let start = afternoon[0] / 1000, end = afternoon[1] / 1000; start <= end; start += step) {
+                if (start * 1000 == afternoon[0]) {
+                    continue;
+                }
+                datelist.push(new Date(start * 1000).getTime() / 1000);
+            }
+
+
+            return datelist;
+        },
         options: [
             { current_index: 0, current_timestamp: null, step: 86400, datelist: [] },
             { current_index: 0, current_timestamp: null, step: 3600, datelist: [] },
             { current_index: 0, current_timestamp: null, step: 1800, datelist: [] },
-            { current_index: 0, current_timestamp: null, step: 15 * 60, datelist: [] },
+            { current_index: 0, current_timestamp: null, step: 900, datelist: [] },
+            { current_index: 0, current_timestamp: null, step: 300, datelist: [] },
+            { current_index: 0, current_timestamp: null, step: 60, datelist: [] },
         ],
         setup: function (str) {
-
-            this.base_timestamp = new Date(str).getTime() / 1000;
-
-            console.log(str, this.base_timestamp);
 
             for (i in this.options) {
                 if (i == 0) {
                     var s = new Date(str).getTime() / 1000;
                     var datelist = [s, s + 86400];
                     this.current_timestamp = s;
+                    this.options[i].last_index = 0;
                 } else {
-                    var datelist = createDayDateList(str, this.options[i].step);
+                    var datelist = this.getTodayDatelist(str, this.options[i].step);
+                    this.options[i].last_index = datelist.length - 1;
                 }
                 this.options[i].current_index = 0;
                 this.options[i].datelist = datelist;
                 this.options[i].current_timestamp = datelist[0];
-                this.options[i].current_max_index = datelist.length - 1;
             }
 
         },
-        move: function (index, step) {
+        move: function (index, step, refresh = true) {
 
             if (this.options[index] < 0) {
                 return;
             }
 
             var op = this.options[index];
-            op.current_index += step;
-            op.current_timestamp = op.datelist[op.current_index];
 
-            console.log(op.current_timestamp)
-
-            if (op.current_index == op.current_max_index) {
-                if (index == 0) {
-                    return this.setup(new Date(op.datelist[op.current_index] * 1000).toLocaleString());
+            if (op.current_index + step > op.last_index) {
+                if (index === 0) {
+                    return this.setup(new Date((op.current_timestamp + 86400) * 1000).toLocaleString());
                 } else {
+                    // 上一级别进1
                     return this.move(index - 1, 1);
                 }
             } else {
+                op.current_index += step;
+                op.current_timestamp = op.datelist[op.current_index];
 
-                for (let i = op.current_index; i < this.options.length; i++) {
-                    this.options[i].current_timestamp = op.current_timestamp;
-                    this.options[i].current_index = this.options[i].datelist.indexOf(op.current_timestamp);
 
-                    // if (this.options[i].current_timestamp > this.options[i - 1].current_timestamp) {
-                    //     this.options[i - 1].current_index += 1;
-                    //     this.options[i - 1].current_timestamp += this.options[i - 1].datelist[this.options[i - 1].current_index += 1];
-                    // }
+                if (refresh) {
+                    for (let i = index + 1; i < this.options.length; i++) {
+                        let o = this.options[i];
+                        o.current_timestamp = op.current_timestamp;
+                        o.current_index = o.datelist.indexOf(op.current_timestamp);
+                    }
                 }
+
+                for (let e = index - 1; e > 0; e--) {
+                    let o = this.options[e];
+                    if (op.current_timestamp > o.current_timestamp) {
+                        this.move(index - 1, 1, false);
+                    }
+                }
+
             }
-
-
         }
     }
 
     var current_date = '2023-04-03 00:00:00';
-    KlineCurrentTime.setup(current_date);
+    KlineControl.setup(current_date);
 
     // 60m往前走一步
-    KlineCurrentTime.move(2, 1)
-    KlineCurrentTime.move(2, 1)
-    // KlineCurrentTime.move(2, 1)
-    // KlineCurrentTime.move(2, 1)
-    // KlineCurrentTime.move(2, 1)
-    // KlineCurrentTime.move(2, 1)
+    KlineControl.move(0, 1)
+    KlineControl.move(0, 1)
+    KlineControl.move(0, 1)
+    KlineControl.move(1, 1)
+    KlineControl.move(1, 1)
+    KlineControl.move(1, 1)
+    // KlineControl.move(1, 1)
 
-    console.log(KlineCurrentTime.options);
+    // KlineControl.move(3, 1)
+    // KlineControl.move(3, 1)
+    // KlineControl.move(3, 1)
+    // KlineControl.move(3, 1)
+    // KlineControl.move(3, 1)
+    // KlineControl.move(3, 1)
+    // KlineControl.move(3, 1)
+    // KlineControl.move(3, 1)
+    // KlineControl.move(3, 1)
+    // KlineControl.move(3, 1)
+    // KlineControl.move(3, 1)
+    // KlineControl.move(3, 1)
+
+
+    // KlineControl.move(3, 1)
+
+
+    // KlineControl.move(2, 1)
+    // KlineControl.move(2, 1)
+    // KlineControl.move(2, 1)
+    // KlineControl.move(2, 1)
+    // KlineControl.move(2, 1)
+
+
+    console.log(KlineControl.options);
 
 
 </script>

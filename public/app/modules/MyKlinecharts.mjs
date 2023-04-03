@@ -137,7 +137,7 @@ class AppKlineCharts {
 
     back_line = []
     draw_back_index = 0;
-    draw_back_line = null;
+    draw_back_line = [];
     switch_draw_back_line = false;
 
     constructor(id) {
@@ -233,34 +233,17 @@ class AppKlineCharts {
                 this.back_line = data.slice(event.overlay.points[0]['dataIndex'] + 1);
                 this.chart.applyNewData(startData)
 
-                const day_overlay_option = Object.assign({}, event.overlay);
-                day_overlay_option.points = [{ timestamp: event.overlay.points[0]['timestamp'] }]
 
-                const ma60_overlay_option = Object.assign({}, event.overlay);
-                ma60_overlay_option.points = [{ timestamp: ((event.overlay.points[0]['timestamp'] / 1000) + (34200 + (60 * 60))) * 1000 }]
+                KlineControl.setup(event.overlay.points[0]['timestamp'])
 
-                const ma30_overlay_option = Object.assign({}, event.overlay);
-                ma30_overlay_option.points = [{ timestamp: ((event.overlay.points[0]['timestamp'] / 1000) + (34200 + (30 * 60))) * 1000 }]
+                // 保存每个级别对应的起始回放时间点
+                for (var i = 0, len = KlineControl.options.length; i < len; i++) {
+                    var overlay_option = Object.assign({}, event.overlay);
+                    overlay_option.points = [{timestamp: KlineControl.options[i].current_timestamp * 1000}]
+                    this.draw_back_line[i] = overlay_option;
+                }
 
-                const ma15_overlay_option = Object.assign({}, event.overlay);
-                ma15_overlay_option.points = [{ timestamp: ((event.overlay.points[0]['timestamp'] / 1000) + (34200 + (15 * 60))) * 1000 }]
-
-                const ma5_overlay_option = Object.assign({}, event.overlay);
-                ma5_overlay_option.points = [{ timestamp: ((event.overlay.points[0]['timestamp'] / 1000) + (34200 + (5 * 60))) * 1000 }]
-
-                const ma1_overlay_option = Object.assign({}, event.overlay);
-                ma1_overlay_option.points = [{ timestamp: ((event.overlay.points[0]['timestamp'] / 1000) + (34200 + (1 * 60))) * 1000 }]
-
-                this.draw_back_line = {
-                    'day': {option: day_overlay_option, start: day_overlay_option.points[0]['timestamp']},
-                    '60m': {option: ma60_overlay_option, start: ma60_overlay_option.points[0]['timestamp']},
-                    '30m': {option: ma30_overlay_option, start: ma30_overlay_option.points[0]['timestamp']},
-                    '15m': {option: ma15_overlay_option, start: ma15_overlay_option.points[0]['timestamp']},
-                    '5m': {option: ma5_overlay_option, start: ma5_overlay_option.points[0]['timestamp']},
-                    '1m': {option: ma1_overlay_option, start: ma1_overlay_option.points[0]['timestamp']},
-                };
-
-                console.log('draw_back_line', this.draw_back_line, event.overlay.points);
+                console.log('back', this.draw_back_line)
 
                 return;
                 break;
@@ -383,4 +366,114 @@ class AppKlineCharts {
     }
 }
 
-export { AppKlineCharts }
+
+/**
+ * 控制k线同步行动
+ **/
+const KlineControl = {
+    current_timestamp: null,
+
+    options: [
+        { current_index: 0, current_timestamp: null, step: 86400, datelist: [] },
+        { current_index: 0, current_timestamp: null, step: 3600, datelist: [] },
+        { current_index: 0, current_timestamp: null, step: 1800, datelist: [] },
+        { current_index: 0, current_timestamp: null, step: 900, datelist: [] },
+        { current_index: 0, current_timestamp: null, step: 300, datelist: [] },
+        { current_index: 0, current_timestamp: null, step: 60, datelist: [] },
+    ],
+
+    getTodayDatelist: function (date, step) {
+        var year = new Date(date).getFullYear();
+        var month = new Date(date).getMonth() + 1;
+        var day = new Date(date).getDate();
+
+        var morning = [new Date(`${year}/${month}/${day} 09:30:00`).getTime(), new Date(`${year}/${month}/${day} 11:30:00`).getTime()];
+        var afternoon = [new Date(`${year}/${month}/${day} 13:00:00`).getTime(), new Date(`${year}/${month}/${day} 15:00:00`).getTime()];
+        var datelist = []
+
+        for (let start = morning[0] / 1000, end = morning[1] / 1000; start <= end; start += step) {
+            if (start * 1000 == morning[0]) {
+                continue;
+            }
+            datelist.push(new Date(start * 1000).getTime() / 1000);
+        }
+
+        for (let start = afternoon[0] / 1000, end = afternoon[1] / 1000; start <= end; start += step) {
+            if (start * 1000 == afternoon[0]) {
+                continue;
+            }
+            datelist.push(new Date(start * 1000).getTime() / 1000);
+        }
+
+
+        return datelist;
+    },
+
+    setup: function (str) {
+
+        if (typeof str != 'string') {
+            var date = new Date(str);
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var day = date.getDate();
+            var str = `${year}-${month}-${day} 00:00:00`;
+        }
+
+        console.log('setup', new Date(str).toLocaleString())
+
+        for (let i in this.options) {
+            if (i == 0) {
+                var s = new Date(str).getTime() / 1000;
+                var datelist = [s, s + 86400];
+                this.current_timestamp = s;
+                this.options[i].last_index = 0;
+            } else {
+                var datelist = this.getTodayDatelist(str, this.options[i].step);
+                this.options[i].last_index = datelist.length - 1;
+            }
+            this.options[i].current_index = 0;
+            this.options[i].datelist = datelist;
+            this.options[i].current_timestamp = datelist[0];
+        }
+
+    },
+    move: function (index, step, refresh = true) {
+
+        if (this.options[index] < 0) {
+            return;
+        }
+
+        var op = this.options[index];
+
+        if (op.current_index + step > op.last_index) {
+            if (index === 0) {
+                return this.setup(new Date((op.current_timestamp + 86400) * 1000).toLocaleString());
+            } else {
+                // 上一级别进1
+                return this.move(index - 1, 1);
+            }
+        } else {
+            op.current_index += step;
+            op.current_timestamp = op.datelist[op.current_index];
+
+
+            if (refresh) {
+                for (let i = index + 1; i < this.options.length; i++) {
+                    let o = this.options[i];
+                    o.current_timestamp = op.current_timestamp;
+                    o.current_index = o.datelist.indexOf(op.current_timestamp);
+                }
+            }
+
+            for (let e = index - 1; e > 0; e--) {
+                let o = this.options[e];
+                if (op.current_timestamp > o.current_timestamp) {
+                    this.move(index - 1, 1, false);
+                }
+            }
+
+        }
+    }
+}
+
+export { AppKlineCharts, KlineControl }
