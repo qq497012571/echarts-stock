@@ -1,165 +1,173 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
 
-    function createDayDateList(date, step = 86400) {
-        var year = new Date(date).getFullYear();
-        var month = new Date(date).getMonth() + 1;
-        var day = new Date(date).getDate();
-
-        var morning = [new Date(`${year}/${month}/${day} 09:30:00`).getTime(), new Date(`${year}/${month}/${day} 11:30:00`).getTime()];
-        var afternoon = [new Date(`${year}/${month}/${day} 13:00:00`).getTime(), new Date(`${year}/${month}/${day} 15:00:00`).getTime()];
-        var datelist = []
-
-        for (let start = morning[0] / 1000, end = morning[1] / 1000; start <= end; start += step) {
-            if (start * 1000 == morning[0]) {
-                continue;
-            }
-            datelist.push(new Date(start * 1000).getTime() / 1000);
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet"
+        href="https://at.alicdn.com/t/c/font_3959585_690nokava2d.css?spm=a313x.7781069.1998910419.52&file=font_3959585_690nokava2d.css">
+    <style>
+        html,body {
+            margin: 0;
+            padding: 0;
+        }
+        .search-container {
+            background-color: #3b3e49;
         }
 
-        for (let start = afternoon[0] / 1000, end = afternoon[1] / 1000; start <= end; start += step) {
-            if (start * 1000 == afternoon[0]) {
-                continue;
-            }
-            datelist.push(new Date(start * 1000).getTime() / 1000);
+        .search-input-box {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0px 20px;
+            background-color: #1e222d;
+            position: fixed;
+            top: 0;
+            z-index: 999;
+            width: 100%;
         }
 
-
-        return datelist;
-    }
-
-    /**
-     * 同步k先行动
-     **/
-    const KlineControl = {
-        current_timestamp: null,
-        getTodayDatelist: function (date, step) {
-            var year = new Date(date).getFullYear();
-            var month = new Date(date).getMonth() + 1;
-            var day = new Date(date).getDate();
-
-            var morning = [new Date(`${year}/${month}/${day} 09:30:00`).getTime(), new Date(`${year}/${month}/${day} 11:30:00`).getTime()];
-            var afternoon = [new Date(`${year}/${month}/${day} 13:00:00`).getTime(), new Date(`${year}/${month}/${day} 15:00:00`).getTime()];
-            var datelist = []
-
-            for (let start = morning[0] / 1000, end = morning[1] / 1000; start <= end; start += step) {
-                if (start * 1000 == morning[0]) {
-                    continue;
-                }
-                datelist.push(new Date(start * 1000).getTime() / 1000);
-            }
-
-            for (let start = afternoon[0] / 1000, end = afternoon[1] / 1000; start <= end; start += step) {
-                if (start * 1000 == afternoon[0]) {
-                    continue;
-                }
-                datelist.push(new Date(start * 1000).getTime() / 1000);
-            }
-
-
-            return datelist;
-        },
-        options: [
-            { current_index: 0, current_timestamp: null, step: 86400, datelist: [] },
-            { current_index: 0, current_timestamp: null, step: 3600, datelist: [] },
-            { current_index: 0, current_timestamp: null, step: 1800, datelist: [] },
-            { current_index: 0, current_timestamp: null, step: 900, datelist: [] },
-            { current_index: 0, current_timestamp: null, step: 300, datelist: [] },
-            { current_index: 0, current_timestamp: null, step: 60, datelist: [] },
-        ],
-        setup: function (str) {
-
-            for (i in this.options) {
-                if (i == 0) {
-                    var s = new Date(str).getTime() / 1000;
-                    var datelist = [s, s + 86400];
-                    this.current_timestamp = s;
-                    this.options[i].last_index = 0;
-                } else {
-                    var datelist = this.getTodayDatelist(str, this.options[i].step);
-                    this.options[i].last_index = datelist.length - 1;
-                }
-                this.options[i].current_index = 0;
-                this.options[i].datelist = datelist;
-                this.options[i].current_timestamp = datelist[0];
-            }
-
-        },
-        move: function (index, step, refresh = true) {
-
-            if (this.options[index] < 0) {
-                return;
-            }
-
-            var op = this.options[index];
-
-            if (op.current_index + step > op.last_index) {
-                if (index === 0) {
-                    return this.setup(new Date((op.current_timestamp + 86400) * 1000).toLocaleString());
-                } else {
-                    // 上一级别进1
-                    return this.move(index - 1, 1);
-                }
-            } else {
-                op.current_index += step;
-                op.current_timestamp = op.datelist[op.current_index];
-
-
-                if (refresh) {
-                    for (let i = index + 1; i < this.options.length; i++) {
-                        let o = this.options[i];
-                        o.current_timestamp = op.current_timestamp;
-                        o.current_index = o.datelist.indexOf(op.current_timestamp);
-                    }
-                }
-
-                for (let e = index - 1; e > 0; e--) {
-                    let o = this.options[e];
-                    if (op.current_timestamp > o.current_timestamp) {
-                        this.move(index - 1, 1, false);
-                    }
-                }
-
-            }
+        .search-input {
+            width: 100%;
+            height: 55px;
+            background: none;
+            outline: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            padding: 0 10px;
         }
-    }
 
-    var current_date = '2023-04-03 00:00:00';
-    KlineControl.setup(current_date);
+        .search-input-box i {
+            color: white;
+            font-size: 20px;
+        }
 
-    // 60m往前走一步
-    KlineControl.move(0, 1)
-    KlineControl.move(0, 1)
-    KlineControl.move(0, 1)
-    KlineControl.move(1, 1)
-    KlineControl.move(1, 1)
-    KlineControl.move(1, 1)
-    // KlineControl.move(1, 1)
+        .search-list-box {
+            color: aliceblue;
+            list-style: none;
+            padding: 0;
+            margin-top: 61px;
+        }
 
-    // KlineControl.move(3, 1)
-    // KlineControl.move(3, 1)
-    // KlineControl.move(3, 1)
-    // KlineControl.move(3, 1)
-    // KlineControl.move(3, 1)
-    // KlineControl.move(3, 1)
-    // KlineControl.move(3, 1)
-    // KlineControl.move(3, 1)
-    // KlineControl.move(3, 1)
-    // KlineControl.move(3, 1)
-    // KlineControl.move(3, 1)
-    // KlineControl.move(3, 1)
+        .search-list-box li {
+            position: relative;
+            padding: 0px 20px;
+            margin-top: 1px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            height: 50px;
+            background-color: #1e222d;
+        }
 
+        .search-list-box li .left {
+            position: absolute;
+            left: 20px;
+        }
 
-    // KlineControl.move(3, 1)
+        .search-list-box li .right {
+            position: absolute;
+            right: 20px;
+        }
 
+        .search-list-box li i {
+            font-size: 20px;
+        }
 
-    // KlineControl.move(2, 1)
-    // KlineControl.move(2, 1)
-    // KlineControl.move(2, 1)
-    // KlineControl.move(2, 1)
-    // KlineControl.move(2, 1)
+    </style>
+</head>
 
+<body>
+    <div>
+        <div class="search-container">
+            <div class="search-input-box">
+                <i class="iconfont icon-sousuo"></i>
+                <input type="text" class="search-input" placeholder="搜索">
+            </div>
+            <ul class="search-list-box">
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
 
-    console.log(KlineControl.options);
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+                <li>
+                    <div class="left">知乎</div>
+                    <div class="right"><a><i class="iconfont icon-plus"></i></a></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
 
-
-</script>
+</html>
