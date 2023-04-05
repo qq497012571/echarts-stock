@@ -7,9 +7,8 @@
     @yield('style')
 </head>
 
-<body style="overflow: hidden;">
-
-    <div class="layui-fluid">
+<body>
+    <div style="margin: 0; padding:0;">
         @yield('content')
     </div>
     <script type="text/javascript" src="/klinecharts.js"></script>

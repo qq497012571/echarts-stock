@@ -87,7 +87,7 @@ class StockController extends BaseController
      */
     public function search(RequestInterface $request)
     {
-        return $this->outputJson($this->stockService->search($request->input('code')));
+        return $this->outputJson($this->stockService->search($request->input('code'),  $request->input('page'), $request->input('limit')));
     }
 
 }

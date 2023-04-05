@@ -12,14 +12,15 @@ declare(strict_types=1);
 
 namespace App\Service\Api;
 
-use App\Library\StockApiSupport\XueqiuApi;
-use App\Library\Utils\ArrayHelper;
-use App\Model\StockAlarm;
 use App\Model\StockMark;
 use App\Model\UserStock;
+use App\Model\StockAlarm;
+use App\Model\StockMarket;
 use Hyperf\Di\Annotation\Inject;
-use Hyperf\Guzzle\HandlerStackFactory;
+use App\Library\Utils\ArrayHelper;
 use Hyperf\Contract\SessionInterface;
+use Hyperf\Guzzle\HandlerStackFactory;
+use App\Library\StockApiSupport\XueqiuApi;
 
 class StockService
 {
@@ -52,31 +53,14 @@ class StockService
     /**
      * 获取自选列表
      */
-    public function list($page, $pagesize, $syncStock = 0)
+    public function list($page, $pagesize, $field, $orderBy)
     {
         $user = $this->session->get('user');
-        if ($syncStock) {
-            $xueqiuApi = new XueqiuApi($user['email'], $user['xueqiu_cookie']);
-            $result = $xueqiuApi->getList();
-            if (isset($result['data']['stocks'])) {
-                foreach ($result['data']['stocks'] as $stock) {
-                    $userStock = UserStock::query()->where('user_id', $user['id'])->where('code', $stock['symbol'])->first();
-                    if (!$userStock) {
-                        $userStock = new UserStock();
-                        $userStock->user_id = $user['id'];
-                        $userStock->code = $stock['symbol'];
-                        $userStock->name = $stock['name'];
-                        $userStock->created_at = $stock['created'] / 1000;
-                        $userStock->save();
-                    }
-                }
-            }
-        }
 
         $userQuery = UserStock::query()->leftJoin('stock_market', 'stock_market.symbol', '=', 'user_stock.code')->where('user_stock.user_id', $user['id']);
         $fields = ['user_stock.id', 'user_stock.code', 'stock_market.name', 'stock_market.current', 'stock_market.percent', 'stock_market.chg'];
         $count = $userQuery->count();
-        $list = $userQuery->offset(($page - 1) * $pagesize)->limit($pagesize)->orderBy('user_stock.created_at', 'desc')->get($fields);
+        $list = $userQuery->offset(($page - 1) * $pagesize)->limit($pagesize)->orderBy($field, $orderBy)->get($fields);
         return [$list, $count];
     }
 
@@ -86,6 +70,51 @@ class StockService
      */
     public function add($code)
     {
+        $user = $this->session->get('user');
+        $userStock = UserStock::query()->where('code', $code)->where('user_id', $user['id'])->first();
+
+        if (is_null($userStock)) {
+            $loginXueqiu = $user['xueqiu_cookie'] ? true : false;
+            if ($loginXueqiu) {
+                $xueqiuApi = new XueqiuApi($user['email'], $user['xueqiu_cookie']);
+            } else {
+                $xueqiuApi = new XueqiuApi($user['email']);
+            }
+            $quoteDetail = $xueqiuApi->quote($code);
+            foreach ($quoteDetail['data']['items'] as $item) {
+                $market = $item['market'];
+                $quote = $item['quote'];
+
+                $userStock = new UserStock();
+                $userStock->user_id = $user['id'];
+                $userStock->code = $code;
+                $userStock->name = $quote['name'];
+                $userStock->save();
+
+                $market = StockMarket::query()->where('symbol', $quote['symbol'])->first();
+                if (!$market) {
+                    $market = new StockMarket();
+                }
+                $market->code = $quote['code'];
+                $market->symbol = $quote['symbol'];
+                $market->name = $quote['name'];
+                $market->status = $quote['status'];
+                $market->exchange = $quote['exchange'];
+                $market->current = $quote['current'];
+                $market->open = $quote['open'];
+                $market->high = $quote['high'];
+                $market->low = $quote['low'];
+                $market->percent = $quote['percent'];
+                $market->chg = $quote['chg'];
+                $market->volume = $quote['volume'];
+                $market->amount = $quote['amount'];
+                $market->market_capital = $quote['market_capital'] ?? 0;
+                $market->timestamp = $quote['timestamp'];
+                $market->save();
+
+                break;
+            }
+        }
     }
 
     /**
@@ -107,13 +136,21 @@ class StockService
      * 搜索股票
      * @param $code
      */
-    public function search($code)
+    public function search($code, $page, $size)
     {
         $user = $this->session->get('user');
-        $xueqiuApi = new XueqiuApi($user['email'], $user['xueqiu_cookie']);
-        $result = $xueqiuApi->search($code);
+        $xueqiuApi = new XueqiuApi($user['email']);
+        $result = $xueqiuApi->search($code, $page, $size);
         $data = [];
+        if (count($result['stocks'])) {
+            $userStockList = UserStock::query()->where('user_id', $user['id'])->get();
+            $userIndexBy = ArrayHelper::array_index($userStockList, 'code');
+            var_dump("================================================");
+            var_dump($userIndexBy);
+            var_dump("================================================");
+        }
         foreach ($result['stocks'] as $stock) {
+            $stock['hasexist'] = isset($userIndexBy[$stock['code']]) ? 1 : 0;
             $data[] = $stock;
         }
         return $data;

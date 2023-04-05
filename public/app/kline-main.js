@@ -29,7 +29,16 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
 
     listenStockList();
 
+    listenMsg(function(type, payload){
+        if (type == 'add_stock_notify' || type == 'del_stock_notify') {
+            Timer.stop('listenStockList')
+            listenStockList()
+        }
+    })
+
     function listenStockList() {
+
+        $('#stock-list-box').html('');
 
         // 加载股票列表
         flow.load({
@@ -98,6 +107,21 @@ layui.use(['laytpl', 'flow', 'jquery'], function () {
             return
         }
         $('.right-bar-box span').removeClass('select') && $(this).addClass('select')
+    });
+
+
+
+    $('#add_stock').click(function () {
+        layer.open({
+            type: 2,
+            title: null,
+            scrollbar: false,
+            maxmin: false,
+            resize: false,
+            scrollbar: false,
+            area: ['300px', '410px'],
+            content: '/stock/search',
+        });
     });
 
     $(document).on('keyup', function (e) {

@@ -33,18 +33,13 @@
             <ul class="layui-nav layui-layout-right">
                 <li class="layui-nav-item layui-hide layui-show-md-inline-block">
                     <a href="javascript:;">
-                        <img src="//tva1.sinaimg.cn/crop.0.0.118.118.180/5db11ff4gw1e77d3nqrv8j203b03cweg.jpg" class="layui-nav-img">
                         {{$user['name']}}
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a href="/logout">登出</a></dd>
                     </dl>
                 </li>
-                <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>
-                    <a href="javascript:;">
-                        <i class="layui-icon layui-icon-more-vertical"></i>
-                    </a>
-                </li>
+               
             </ul>
         </div>
 
@@ -64,7 +59,7 @@
             </div>
         </div>
         <div class="layui-body" style="padding: 10px;">
-            <iframe src="" name="body" frameborder="0" width="100%" height="100%"></iframe>
+            <iframe src="" name="body" frameborder="0" width="100%" height="100%" scrolling="no"></iframe>
         </div>
     </div>
     <script type="text/javascript" src="/layui/layui.js"></script>

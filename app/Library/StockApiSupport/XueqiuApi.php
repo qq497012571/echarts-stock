@@ -183,10 +183,12 @@ class XueqiuApi
     /**
      * serach搜索
      */
-    public function search($code, $size = 10)
+    public function search($code, $page = 1, $size = 10)
     {
-        $this->logger->info('generateQrCode cookie: ' . json_encode($this->_jar->toArray()));
-        $url = "https://xueqiu.com/query/v1/search/stock.json?code=$code&size=$size";
+        $this->logger->info('search cookie: ' . json_encode($this->_jar->toArray()));
+        $url = "https://xueqiu.com/query/v1/search/stock.json?code=$code&size=$size&page=$page";
+        $this->logger->info('search url: ' . $url);
+        
         $response = $this->_client->request('GET', $url, $this->_option);
         $result = Json::decode($response->getBody()->getContents());
         $this->logger->info("雪球搜索: " . json_encode($result));

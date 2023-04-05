@@ -39,8 +39,18 @@ class UserStockController extends BaseController
      */
     public function list(RequestInterface $request)
     {
-        list($data, $count)  = $this->stockService->list($request->query('page', 1), $request->query('limit', 20), $request->query('sync_stock'));
+        list($data, $count)  = $this->stockService->list($request->query('page', 1), $request->query('limit', 20), $request->query('field', 'user_stock.created_at'), $request->query('order', 'desc'));
         return $this->outputJson($data, $count);
+    }
+
+    /**
+     * 添加自选股票
+     * @param RequestInterface $request
+     */
+    public function add(RequestInterface $request)
+    {
+        $this->stockService->add($request->input('code'));
+        return $this->outputJson([]);
     }
 
     /**

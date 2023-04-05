@@ -33,7 +33,7 @@ class ArrayHelper
     }
 
 
-    public function array_index($input, $column_index_key = '')
+    public static function array_index($input, $column_index_key = '')
     {
         $result = [];
         foreach ($input as $arr) {
@@ -41,14 +41,14 @@ class ArrayHelper
                 if (!isset($arr[$column_index_key])) {
                     throw new \Exception("column_index_key 找不到");
                 }
-                $result[$column_index_key] = $arr;
+                $result[$arr[$column_index_key]] = $arr;
             }
 
             if(is_object($arr)) {
                 if (!isset($arr[$column_index_key])) {
                     throw new \Exception("column_index_key 找不到");
                 }
-                $result[$column_index_key] = $arr->toArray();
+                $result[$arr[$column_index_key]] = $arr->toArray();
             }
         }
 
