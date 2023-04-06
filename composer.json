@@ -38,6 +38,7 @@
         "hyperf/watcher": "^3.0",
         "mockery/mockery": "^1.0",
         "phpstan/phpstan": "^1.0",
+        "qiutuleng/hyperf-dump-server": "^2.0",
         "swoole/ide-helper": "^5.0"
     },
     "suggest": {

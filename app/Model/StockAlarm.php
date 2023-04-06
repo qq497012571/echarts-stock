@@ -14,6 +14,7 @@ use Hyperf\DbConnection\Model\Model;
  * @property int $status 
  * @property int $timing_type 
  * @property string $time_type 
+ * @property int $auto_destory 
  * @property string $push_channel 
  * @property int $expire_time 
  * @property int $trigger_time 
@@ -38,5 +39,5 @@ class StockAlarm extends Model
     /**
      * The attributes that should be cast to native types.
      */
-    protected array $casts = ['id' => 'integer', 'user_id' => 'integer', 'status' => 'integer', 'timing_type' => 'integer', 'expire_time' => 'integer', 'trigger_time' => 'integer', 'is_del' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected array $casts = ['id' => 'integer', 'user_id' => 'integer', 'status' => 'integer', 'timing_type' => 'integer', 'auto_destory' => 'integer', 'expire_time' => 'integer', 'trigger_time' => 'integer', 'is_del' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 }

@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <div class="layui-fluid">
+    <div style="margin: 0; padding:0;">
         @yield('content')
     </div>
     <script type="text/javascript" src="/klinecharts.js"></script>

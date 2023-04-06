@@ -1,6 +1,10 @@
 import { fetchAddMarks, fetchRemoveMarks } from "./Api.mjs";
 import { getUrlQuery } from "./Utils.mjs";
 
+
+const UP_COLOR = '#ff3d3d'
+const DOWN_COLOR = '#10cc55'
+
 /**
  * 覆盖物: 画矩形框
  */
@@ -39,6 +43,39 @@ const drawRectOverlay = {
 
 
 klinecharts.registerOverlay(drawRectOverlay)
+
+
+var drawBackLine = {
+    name: 'draw_back_line',
+    lock: true,
+    totalStep: 2,
+    needDefaultPointFigure: true,
+    needDefaultXAxisFigure: true,
+    needDefaultYAxisFigure: true,
+    createPointFigures: function (_a) {
+        var coordinates = _a.coordinates, bounding = _a.bounding;
+        console.log(_a)
+        return [
+            {
+                type: 'line',
+                attrs: {
+                    coordinates: [
+                        {
+                            x: coordinates[0].x,
+                            y: 0
+                        }, {
+                            x: coordinates[0].x,
+                            y: bounding.height
+                        }
+                    ]
+                }
+            }
+        ];
+    }
+};
+
+
+klinecharts.registerOverlay(drawBackLine)
 
 /**
  * 覆盖物, 画预警线
@@ -96,17 +133,46 @@ klinecharts.registerOverlay(alarmLine)
 
 class AppKlineCharts {
 
+    static chart = {}
+
+    back_line = []
+    draw_back_index = 0;
+    draw_back_line = [];
+    switch_draw_back_line = false;
+
     constructor(id) {
 
-        this.chart = klinecharts.init(id)
+        AppKlineCharts.chart = this.chart = klinecharts.init(id)
+
         this.chart.setLocale('zh-CN')
         this.chart.setStyles({
             grid: {
                 show: false,
             },
+            // 蜡烛柱
+            candle: {
+                type: 'candle_up_stroke',
+                bar: {
+                    upColor: UP_COLOR,
+                    downColor: DOWN_COLOR,
+                    noChangeColor: '#888888'
+                }
+            },
+            indicator: {
+                bars: [{
+                    // 'fill' | 'stroke' | 'stroke_fill'
+                    style: 'fill',
+                    // 'solid' | 'dashed'
+                    borderStyle: 'solid',
+                    borderSize: 1,
+                    borderDashedValue: [2, 2],
+                    upColor: UP_COLOR,
+                    downColor: DOWN_COLOR,
+                    backgroundColor: 'blue',
+                    // noChangeColor: 'yellow'
+                }],
+            }
         })
-
-
 
         this.registerOverlay()
         this.setIndicatorMA()
@@ -116,14 +182,16 @@ class AppKlineCharts {
 
     createOverlay(option, override = false) {
 
-        option['onPressedMoveEnd'] = this.saveOverlay;
-        option['onDrawEnd'] = this.saveOverlay;
-        option['onRemoved'] = this.removeOverlay;
+        option['onPressedMoveEnd'] = this.saveOverlay.bind(this);
+        option['onDrawEnd'] = this.saveOverlay.bind(this);
+        option['onRemoved'] = this.removeOverlay.bind(this);
 
         if (option['points'] !== undefined) {
-            option.points = option.points.map(function (p) {
-                return { value: p.value }
-            });
+            if (option.name === 'alarm_line') {
+                option.points = option.points.map(function (p) {
+                    return { value: p.value }
+                });
+            }
         }
 
         if (override) {
@@ -158,7 +226,28 @@ class AppKlineCharts {
                     }
                 });
                 break;
-            default:
+            case 'draw_back_line':
+                this.switch_draw_back_line = true;
+                var data = this.chart.getDataList();
+                var startData = data.slice(0, event.overlay.points[0]['dataIndex'] + 1)
+                this.back_line = data.slice(event.overlay.points[0]['dataIndex'] + 1);
+                this.chart.applyNewData(startData)
+
+
+                KlineControl.setup(event.overlay.points[0]['timestamp'])
+
+                // 保存每个级别对应的起始回放时间点
+                for (var i = 0, len = KlineControl.options.length; i < len; i++) {
+                    var overlay_option = Object.assign({}, event.overlay);
+                    overlay_option.points = [{timestamp: KlineControl.options[i].current_timestamp * 1000}]
+                    this.draw_back_line[i] = overlay_option;
+                }
+
+                console.log('back', this.draw_back_line)
+
+                return;
+                break;
+            default: 32, 400
                 return console.log('save error')
                 break;
         }
@@ -277,4 +366,114 @@ class AppKlineCharts {
     }
 }
 
-export { AppKlineCharts }
+
+/**
+ * 控制k线同步行动
+ **/
+const KlineControl = {
+    current_timestamp: null,
+
+    options: [
+        { current_index: 0, current_timestamp: null, step: 86400, datelist: [] },
+        { current_index: 0, current_timestamp: null, step: 3600, datelist: [] },
+        { current_index: 0, current_timestamp: null, step: 1800, datelist: [] },
+        { current_index: 0, current_timestamp: null, step: 900, datelist: [] },
+        { current_index: 0, current_timestamp: null, step: 300, datelist: [] },
+        { current_index: 0, current_timestamp: null, step: 60, datelist: [] },
+    ],
+
+    getTodayDatelist: function (date, step) {
+        var year = new Date(date).getFullYear();
+        var month = new Date(date).getMonth() + 1;
+        var day = new Date(date).getDate();
+
+        var morning = [new Date(`${year}/${month}/${day} 09:30:00`).getTime(), new Date(`${year}/${month}/${day} 11:30:00`).getTime()];
+        var afternoon = [new Date(`${year}/${month}/${day} 13:00:00`).getTime(), new Date(`${year}/${month}/${day} 15:00:00`).getTime()];
+        var datelist = []
+
+        for (let start = morning[0] / 1000, end = morning[1] / 1000; start <= end; start += step) {
+            if (start * 1000 == morning[0]) {
+                continue;
+            }
+            datelist.push(new Date(start * 1000).getTime() / 1000);
+        }
+
+        for (let start = afternoon[0] / 1000, end = afternoon[1] / 1000; start <= end; start += step) {
+            if (start * 1000 == afternoon[0]) {
+                continue;
+            }
+            datelist.push(new Date(start * 1000).getTime() / 1000);
+        }
+
+
+        return datelist;
+    },
+
+    setup: function (str) {
+
+        if (typeof str != 'string') {
+            var date = new Date(str);
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var day = date.getDate();
+            var str = `${year}-${month}-${day} 00:00:00`;
+        }
+
+        console.log('setup', new Date(str).toLocaleString())
+
+        for (let i in this.options) {
+            if (i == 0) {
+                var s = new Date(str).getTime() / 1000;
+                var datelist = [s, s + 86400];
+                this.current_timestamp = s;
+                this.options[i].last_index = 0;
+            } else {
+                var datelist = this.getTodayDatelist(str, this.options[i].step);
+                this.options[i].last_index = datelist.length - 1;
+            }
+            this.options[i].current_index = 0;
+            this.options[i].datelist = datelist;
+            this.options[i].current_timestamp = datelist[0];
+        }
+
+    },
+    move: function (index, step, refresh = true) {
+
+        if (this.options[index] < 0) {
+            return;
+        }
+
+        var op = this.options[index];
+
+        if (op.current_index + step > op.last_index) {
+            if (index === 0) {
+                return this.setup(new Date((op.current_timestamp + 86400) * 1000).toLocaleString());
+            } else {
+                // 上一级别进1
+                return this.move(index - 1, 1);
+            }
+        } else {
+            op.current_index += step;
+            op.current_timestamp = op.datelist[op.current_index];
+
+
+            if (refresh) {
+                for (let i = index + 1; i < this.options.length; i++) {
+                    let o = this.options[i];
+                    o.current_timestamp = op.current_timestamp;
+                    o.current_index = o.datelist.indexOf(op.current_timestamp);
+                }
+            }
+
+            for (let e = index - 1; e > 0; e--) {
+                let o = this.options[e];
+                if (op.current_timestamp > o.current_timestamp) {
+                    this.move(index - 1, 1, false);
+                }
+            }
+
+        }
+    }
+}
+
+export { AppKlineCharts, KlineControl }

@@ -1,158 +1,204 @@
 @extends('layouts.content')
 @section('style')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css">
+<style>
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .search-container {
+        background-color: #3b3e49;
+        overflow: hidden;
+    }
+
+    .search-input-box {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        background-color: #1e222d;
+        width: 100%;
+        color: #a3a6af;
+    }
+
+    .search-input {
+        width: 100%;
+        height: 40px;
+        background: none;
+        outline: none;
+        border: none;
+        font-size: 16px;
+        color: #a3a6af;
+    }
+
+    .search-input-box i {
+        color: white;
+        font-size: 20px;
+    }
+
+    .search-list-box {
+        color: aliceblue;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        height: 400px;
+        overflow: auto;
+    }
+
+    .search-list-box li {
+        position: relative;
+        padding: 0px 30px;
+        margin-top: 1px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        height: 40px;
+        background-color: #1e222d;
+    }
+
+    .search-list-box li:hover {
+        background-color: #2a2e39;
+    }
+
+    .search-list-box li .left {
+        position: absolute;
+        left: 20px;
+    }
+
+    .search-list-box li .right {
+        position: absolute;
+        right: 20px;
+    }
+
+    .search-list-box li i {
+        font-size: 20px;
+    }
+
+    .search-list-box li span {
+        padding: 5px;
+        color: #2962ff;
+        cursor: pointer;
+    }
+
+    .search-list-box li span:hover {
+        background-color: #1e222d;
+    }
+
+    .search-list-box::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    .search-list-box::-webkit-scrollbar-track {
+        background-color: #1e222d;
+    }
+
+    .search-list-box::-webkit-scrollbar-thumb {
+        background: #4e4e4e;
+        border-radius: 25px;
+    }
+</style>
 @endsection
 
 @section('content')
-<div class="autoComplete_wrapper">
-    <input id="autoComplete" type="search" dir="ltr" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off">
+<div class="search-container">
+    <div class="search-input-box">
+        <i class="iconfont icon-sousuo"></i>
+        <input type="text" class="search-input" placeholder="搜索" autocomplete="false">
+    </div>
+    <ul class="search-list-box" id="search-list-box">
+
+    </ul>
 </div>
 @endsection
 
 @section('script')
+<script id="list-item-tpl" type="text/html">
+    @{{# layui.each(d.data, function(index, item){ }}
+        <li>
+            <div class="left">@{{item.name}}/@{{item.code}}</div>
+            <div class="right">
+                <span>
+                    @{{# if(item.hasexist != 1){ }}
+                        <i class="iconfont icon-plus action" code="@{{item.code}}" exchange="@{{item.exchange}}" state="@{{item.state}}"></i>
+                        @{{# } else { }}
+                            <i class="iconfont icon-chacha action" code="@{{item.code}}" exchange="@{{item.exchange}}" state="@{{item.state}}"></i>
+                            @{{# } }}
+                </span>
+            </div>
+        </li>
+        @{{# }); }}
+</script>
 <script>
-    const autoCompleteJS = new autoComplete({
-        data: {
-            src: data,
-            keys: ["food", "cities", "animals"],
-            cache: true,
-            filter: (list) => {
-                // Filter duplicates
-                // incase of multiple data keys usage
-                const filteredResults = Array.from(
-                    new Set(list.map((value) => value.match))
-                ).map((food) => {
-                    return list.find((value) => value.match === food);
+    layui.use(['laytpl', 'flow', 'jquery'], function() {
+        var laytpl = layui.laytpl;
+        var flow = layui.flow;
+        var $ = layui.jquery;
+        var serachUrl = '/api/stock/search';
+
+        $('.search-input').focus();
+
+        $('.search-input').on('change', function(e) {
+            var code = $(this).val();
+            var limit = 15;
+            $('#search-list-box').html('')
+
+            flow.load({
+                elem: '#search-list-box',
+                scrollElem: '#search-list-box',
+                isAuto: true,
+                done: function(page, next) { //执行下一页的回调
+                    console.log('search', page)
+                    $.get(serachUrl, {
+                        code: code,
+                        limit: limit,
+                        page: page,
+                    }, function(res) {
+                        console.log('search', res)
+                        var data = res.data
+                        laytpl($('#list-item-tpl').html()).render({
+                            data,
+                        }, function(html) {
+                            next(html, data.length == limit)
+
+                        });
+                    });
+                }
+            });
+        });
+
+
+        $(document).on('click', '.action', function() {
+            const that = $(this);
+            const code = $(this).attr('code');
+            const state = $(this).attr('state');
+            const exchange = $(this).attr('exchange');
+            const actionAdd = $(this).hasClass('icon-plus');
+
+            if (['SH', 'SZ', 'CN'].indexOf(exchange) === -1) {
+                return layer.msg('只允许添加A股相关股票');
+            }
+
+            if (actionAdd) {
+                if(state == 3) {
+                    return layer.msg('该股票已退市');
+                }
+                $.post('/api/user_stock/add', {
+                    code: code
+                }, function(res) {
+                    sendMsg('add_stock_notify', {})
+                    that.removeClass('icon-plus').addClass('icon-chacha');
                 });
-
-                return filteredResults;
+            } else {
+                $.post('/api/user_stock/cancel', {
+                    code: code
+                }, function(res) {
+                    sendMsg('del_stock_notify', {})
+                    that.removeClass('icon-chacha').addClass('icon-plus');
+                });
             }
-        },
-        placeHolder: "Search for Food & Drinks!",
-        resultsList: {
-            element: (list, data) => {
-                const info = document.createElement("p");
-                if (data.results.length > 0) {
-                    info.innerHTML = `Displaying <strong>${data.results.length}</strong> out of <strong>${data.matches.length}</strong> results`;
-                } else {
-                    info.innerHTML = `Found <strong>${data.matches.length}</strong> matching results for <strong>"${data.query}"</strong>`;
-                }
-                list.prepend(info);
-            },
-            noResults: true,
-            maxResults: 15,
-            tabSelect: true
-        },
-        resultItem: {
-            element: (item, data) => {
-                // Modify Results Item Style
-                item.style = "display: flex; justify-content: space-between;";
-                // Modify Results Item Content
-                item.innerHTML = `
-      <span style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
-        ${data.match}
-      </span>
-      <span style="display: flex; align-items: center; font-size: 13px; font-weight: 100; text-transform: uppercase; color: rgba(0,0,0,.2);">
-        ${data.key}
-      </span>`;
-            },
-            highlight: true
-        },
-        events: {
-            input: {
-                focus: () => {
-                    if (autoCompleteJS.input.value.length) autoCompleteJS.start();
-                }
-            }
-        }
-    });
 
-    // autoCompleteJS.input.addEventListener("init", function (event) {
-    //   console.log(event);
-    // });
-
-    // autoCompleteJS.input.addEventListener("response", function (event) {
-    //   console.log(event.detail);
-    // });
-
-    // autoCompleteJS.input.addEventListener("results", function (event) {
-    //   console.log(event.detail);
-    // });
-
-    // autoCompleteJS.input.addEventListener("open", function (event) {
-    //   console.log(event.detail);
-    // });
-
-    // autoCompleteJS.input.addEventListener("navigate", function (event) {
-    //   console.log(event.detail);
-    // });
-
-    autoCompleteJS.input.addEventListener("selection", function(event) {
-        const feedback = event.detail;
-        autoCompleteJS.input.blur();
-        // Prepare User's Selected Value
-        const selection = feedback.selection.value[feedback.selection.key];
-        // Render selected choice to selection div
-        document.querySelector(".selection").innerHTML = selection;
-        // Replace Input value with the selected value
-        autoCompleteJS.input.value = selection;
-        // Console log autoComplete data feedback
-        console.log(feedback);
-    });
-
-    // autoCompleteJS.input.addEventListener("close", function (event) {
-    //   console.log(event.detail);
-    // });
-
-    // Toggle Search Engine Type/Mode
-    document.querySelector(".toggler").addEventListener("click", () => {
-        // Holds the toggle button selection/alignment
-        const toggle = document.querySelector(".toggle").style.justifyContent;
-
-        if (toggle === "flex-start" || toggle === "") {
-            // Set Search Engine mode to Loose
-            document.querySelector(".toggle").style.justifyContent = "flex-end";
-            document.querySelector(".toggler").innerHTML = "Loose";
-            autoCompleteJS.searchEngine = "loose";
-        } else {
-            // Set Search Engine mode to Strict
-            document.querySelector(".toggle").style.justifyContent = "flex-start";
-            document.querySelector(".toggler").innerHTML = "Strict";
-            autoCompleteJS.searchEngine = "strict";
-        }
-    });
-
-    // Blur/unBlur page elements
-    const action = (action) => {
-        const title = document.querySelector("h1");
-        const mode = document.querySelector(".mode");
-        const selection = document.querySelector(".selection");
-        const footer = document.querySelector(".footer");
-
-        if (action === "dim") {
-            title.style.opacity = 1;
-            mode.style.opacity = 1;
-            selection.style.opacity = 1;
-        } else {
-            title.style.opacity = 0.3;
-            mode.style.opacity = 0.2;
-            selection.style.opacity = 0.1;
-        }
-    };
-
-    // Blur/unBlur page elements on input focus
-    ["focus", "blur"].forEach((eventType) => {
-        autoCompleteJS.input.addEventListener(eventType, () => {
-            // Blur page elements
-            if (eventType === "blur") {
-                action("dim");
-            } else if (eventType === "focus") {
-                // unBlur page elements
-                action("light");
-            }
         });
     });
-
-    $('#autoComplete').focus()
 </script>
 @endsection
