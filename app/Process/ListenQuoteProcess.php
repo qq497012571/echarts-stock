@@ -21,6 +21,7 @@ class ListenQuoteProcess extends AbstractProcess
 {
     public function handle(): void
     {
+        return;
         $xueqiu = new XueqiuApi('listen_quote_process');
         $codes = ArrayHelper::array_column(UserStock::query()->groupBy('code')->get('code'), 'code');
         $logger = $this->container->get(StdoutLoggerInterface::class);

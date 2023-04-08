@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Proxy\Model;
+namespace App\Model\Proxy;
 
 use App\Model\StockMarket;
 

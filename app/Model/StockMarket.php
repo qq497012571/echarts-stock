@@ -21,8 +21,15 @@ use Hyperf\DbConnection\Model\Model;
  * @property string $chg 
  * @property int $volume 
  * @property int $amount 
+ * @property string $turnover_rate 
  * @property int $market_capital 
+ * @property int $market_flow_capital 
  * @property int $timestamp 
+ * @property int $last_60_datetime 
+ * @property int $last_30_datetime 
+ * @property int $last_15_datetime 
+ * @property int $last_5_datetime 
+ * @property int $last_1_datetime 
  * @property \Carbon\Carbon $created_at 
  * @property \Carbon\Carbon $updated_at 
  */
@@ -41,5 +48,5 @@ class StockMarket extends Model
     /**
      * The attributes that should be cast to native types.
      */
-    protected array $casts = ['id' => 'integer', 'status' => 'integer', 'volume' => 'integer', 'amount' => 'integer', 'market_capital' => 'integer', 'timestamp' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected array $casts = ['id' => 'integer', 'status' => 'integer', 'volume' => 'integer', 'amount' => 'integer', 'market_capital' => 'integer', 'market_flow_capital' => 'integer', 'timestamp' => 'integer', 'last_60_datetime' => 'integer', 'last_30_datetime' => 'integer', 'last_15_datetime' => 'integer', 'last_5_datetime' => 'integer', 'last_1_datetime' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 }
